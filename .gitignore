@@ -37,8 +37,8 @@ checkpoints/
 *.ckpt
 
 # Datasets & raw data
-data/
-datasets/
+/data/
+/datasets/
 *.zip
 *.tar
 *.tar.gz
