@@ -91,6 +91,12 @@ class Trainer:
             else:
                 self.device = torch.device(device)
             self.model = model.to(self.device)
+            if (
+                self.device.type == "cuda"
+                and torch.cuda.device_count() > 1
+                and not isinstance(self.model, (nn.DataParallel, nn.parallel.DistributedDataParallel))
+            ):
+                self.model = nn.DataParallel(self.model)
 
         # Logger and metric tracker (rank 0 only records metrics to disk)
         from src.utils.distributed import is_main_process
@@ -251,6 +257,8 @@ class Trainer:
         from src.utils.distributed import is_main_process
         if is_main_process():
             self.logger.info(f"Starting training on device: {self.device}")
+            if isinstance(self.model, nn.DataParallel):
+                self.logger.info(f"Multi-GPU enabled: DataParallel active across {torch.cuda.device_count()} GPUs")
             self.logger.info(f"Total epochs: {total_epochs}, Initial LR: {self.optimizer.param_groups[0]['lr']}")
 
         start_time = time.time()
