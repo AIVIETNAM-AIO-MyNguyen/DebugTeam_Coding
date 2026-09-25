@@ -19,6 +19,7 @@ from src.config.parser import load_config, save_config
 from src.data import build_dataloaders
 from src.engine.trainer import Trainer
 from src.models import build_model
+from src.utils.distributed import cleanup_distributed, init_distributed_mode, is_main_process
 from src.utils.logger import setup_logger
 from src.utils.naming import generate_experiment_name, setup_experiment_dir
 from src.utils.seed import set_seed
@@ -46,6 +47,9 @@ def parse_args():
 def main():
     args, unknown_args = parse_args()
 
+    # 0. Initialize DDP Multi-GPU (e.g. 2x T4 on Kaggle via torchrun)
+    is_distributed, rank, local_rank, world_size = init_distributed_mode()
+
     # 1. Load config with CLI overrides
     cfg = load_config(
         config_path=args.config,
@@ -54,46 +58,65 @@ def main():
     )
 
     # 2. Control Seed & Determinism
-    seed = cfg.training.get("seed", 42)
+    base_seed = cfg.training.get("seed", 42)
+    seed = base_seed + rank
     deterministic = cfg.training.get("deterministic", True)
     set_seed(seed=seed, deterministic=deterministic)
 
-    # 3. Setup Experiment Name & Directory Structure
+    # 3. Setup Experiment Name & Directory Structure (rank 0 only)
     exp_name = cfg.experiment.get("name")
     if not exp_name:
         exp_name = generate_experiment_name(
             model_name=cfg.model.name,
             dataset_name=cfg.data.dataset,
             tag=cfg.experiment.get("tag", "run"),
-            seed=seed,
+            seed=base_seed,
         )
         cfg.experiment.name = exp_name
 
     base_dir = cfg.experiment.get("base_dir", "runs")
-    exp_dirs = setup_experiment_dir(exp_name=exp_name, base_dir=base_dir)
+    if is_main_process():
+        exp_dirs = setup_experiment_dir(exp_name=exp_name, base_dir=base_dir)
+        save_config(cfg, exp_dirs["root"] / "config.yaml")
+    else:
+        root = Path(base_dir) / exp_name
+        exp_dirs = {
+            "root": root,
+            "checkpoints": root / "checkpoints",
+            "logs": root / "logs",
+            "metrics": root / "metrics",
+        }
 
-    # 4. Save Config Snapshot for Perfect Reproducibility
-    save_config(cfg, exp_dirs["root"] / "config.yaml")
+    if is_distributed:
+        import torch.distributed as dist
+        dist.barrier()
 
-    # 5. Initialize Logger
-    logger = setup_logger(name="main", log_file=exp_dirs["logs"] / "train.log")
-    logger.info(f"Experiment initialized: {exp_name}")
-    logger.info(f"Artifacts will be stored at: {exp_dirs['root']}")
-    logger.info(f"Seed set to {seed} (deterministic={deterministic})")
+    # 4. Initialize Logger
+    log_file = (exp_dirs["logs"] / "train.log") if is_main_process() else None
+    logger = setup_logger(name=f"main_r{rank}", log_file=log_file)
+    if is_main_process():
+        logger.info(f"Experiment initialized: {exp_name}")
+        logger.info(f"Distributed training: {is_distributed} (world_size={world_size})")
+        logger.info(f"Artifacts will be stored at: {exp_dirs['root']}")
+        logger.info(f"Seed set to {base_seed} (deterministic={deterministic})")
 
-    # 6. Build DataLoaders
-    logger.info(f"Building data pipeline for dataset: {cfg.data.dataset}")
+    # 5. Build DataLoaders (automatically uses DistributedSampler when in DDP)
+    if is_main_process():
+        logger.info(f"Building data pipeline for dataset: {cfg.data.dataset}")
     train_loader, val_loader, test_loader = build_dataloaders(cfg)
-    logger.info(f"Train batches: {len(train_loader)} | Val batches: {len(val_loader)}")
+    if is_main_process():
+        logger.info(f"Train batches per GPU: {len(train_loader)} | Val batches: {len(val_loader)}")
 
-    # 7. Build Model
-    logger.info(f"Building model: {cfg.model.name}")
+    # 6. Build Model
+    if is_main_process():
+        logger.info(f"Building model: {cfg.model.name}")
     model = build_model(cfg)
     total_params = model.num_parameters(trainable_only=False)
     trainable_params = model.num_parameters(trainable_only=True)
-    logger.info(f"Model {cfg.model.name} constructed. Parameters: {trainable_params:,} trainable ({total_params:,} total)")
+    if is_main_process():
+        logger.info(f"Model {cfg.model.name} constructed. Parameters: {trainable_params:,} trainable ({total_params:,} total)")
 
-    # 8. Start Training
+    # 7. Start Training
     trainer = Trainer(
         model=model,
         train_loader=train_loader,
@@ -104,7 +127,10 @@ def main():
     )
 
     results = trainer.fit()
-    logger.info(f"Experiment finished successfully! Best Acc@1: {results['best_top1']:.2f}%")
+    if is_main_process():
+        logger.info(f"Experiment finished successfully! Best Acc@1: {results['best_top1']:.2f}%")
+
+    cleanup_distributed()
 
 
 if __name__ == "__main__":

@@ -159,6 +159,36 @@ trainer = Trainer(model, train_loader, val_loader, cfg)
 results = trainer.fit()
 ```
 
+### 3.2 Dual GPU Training on Kaggle (2x NVIDIA T4 with DDP)
+
+Kaggle allows you to turn on **Accelerator: GPU T4 x2** (in the notebook right-hand sidebar under *Session Options*).
+
+Our codebase has native **DistributedDataParallel (DDP)** support. To utilize both T4 GPUs in parallel:
+
+#### Check GPU count in notebook:
+```python
+import torch
+print("GPU Count:", torch.cuda.device_count())  # Returns: 2
+for i in range(torch.cuda.device_count()):
+    print(f"GPU {i}: {torch.cuda.get_device_name(i)}")
+```
+
+#### Launch training across both GPUs:
+In a Kaggle notebook cell, run:
+```bash
+!torchrun --nproc_per_node=2 scripts/run_train.py \
+    --config configs/cifar100_mlp_mixer.yaml \
+    --data.batch_size 128 \
+    --training.epochs 100
+```
+
+#### How it works:
+- `torchrun` launches 2 independent worker processes (one on GPU 0, one on GPU 1).
+- **`DistributedSampler`** automatically partitions each dataset evenly without overlap.
+- Gradients are averaged across both GPUs via NCCL all-reduce backend.
+- Total effective batch size = `data.batch_size * 2` (e.g. $128 \times 2 = 256$).
+- Only **Rank 0** prints logs, updates progress bars, and writes checkpoint files to disk to prevent file contention.
+
 Open and run `notebooks/00_quickstart_colab_kaggle.ipynb` for a complete step-by-step interactive workflow.
 
 ---

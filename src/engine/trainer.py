@@ -74,18 +74,29 @@ class Trainer:
         self.val_loader = val_loader
         self.exp_dirs = exp_dirs
 
-        # Device selection
-        if device is None:
-            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.is_distributed = torch.distributed.is_available() and torch.distributed.is_initialized()
+        if self.is_distributed:
+            import os
+            self.local_rank = int(os.environ.get("LOCAL_RANK", 0))
+            self.device = torch.device(f"cuda:{self.local_rank}")
+            self.model = model.to(self.device)
+            self.model = nn.parallel.DistributedDataParallel(
+                self.model,
+                device_ids=[self.local_rank],
+                output_device=self.local_rank,
+            )
         else:
-            self.device = torch.device(device)
+            if device is None:
+                self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            else:
+                self.device = torch.device(device)
+            self.model = model.to(self.device)
 
-        self.model = model.to(self.device)
-
-        # Logger and metric tracker
-        log_file = (exp_dirs["logs"] / "train.log") if exp_dirs and "logs" in exp_dirs else None
+        # Logger and metric tracker (rank 0 only records metrics to disk)
+        from src.utils.distributed import is_main_process
+        log_file = (exp_dirs["logs"] / "train.log") if (exp_dirs and "logs" in exp_dirs and is_main_process()) else None
         self.logger = logger or setup_logger(name="trainer", log_file=log_file)
-        metrics_dir = exp_dirs["metrics"] if exp_dirs and "metrics" in exp_dirs else None
+        metrics_dir = exp_dirs["metrics"] if (exp_dirs and "metrics" in exp_dirs and is_main_process()) else None
         self.tracker = MetricTracker(save_dir=metrics_dir)
 
         # Criterion setup (handle Mixup soft targets or standard labels)
@@ -147,8 +158,13 @@ class Trainer:
         top1_meter = AverageMeter("Acc@1", ":.2f")
         top5_meter = AverageMeter("Acc@5", ":.2f")
 
+        # Set epoch for DistributedSampler to guarantee deterministic shuffling
+        if hasattr(self.train_loader, "sampler") and hasattr(self.train_loader.sampler, "set_epoch"):
+            self.train_loader.sampler.set_epoch(epoch)
+
+        from src.utils.distributed import is_main_process
         grad_clip = self.cfg.get("training", {}).get("grad_clip", 1.0)
-        pbar = tqdm(self.train_loader, desc=f"Epoch [{epoch}] Train", leave=False)
+        pbar = tqdm(self.train_loader, desc=f"Epoch [{epoch}] Train", leave=False, disable=not is_main_process())
 
         for images, targets in pbar:
             images = images.to(self.device, non_blocking=True)
@@ -199,7 +215,8 @@ class Trainer:
         top1_meter = AverageMeter("Val Acc@1", ":.2f")
         top5_meter = AverageMeter("Val Acc@5", ":.2f")
 
-        pbar = tqdm(self.val_loader, desc=f"Epoch [{epoch}] Val", leave=False)
+        from src.utils.distributed import is_main_process
+        pbar = tqdm(self.val_loader, desc=f"Epoch [{epoch}] Val", leave=False, disable=not is_main_process())
 
         for images, targets in pbar:
             images = images.to(self.device, non_blocking=True)
@@ -231,8 +248,10 @@ class Trainer:
         Runs the full training loop across all epochs.
         """
         total_epochs = epochs or self.cfg.get("training", {}).get("epochs", 100)
-        self.logger.info(f"Starting training on device: {self.device}")
-        self.logger.info(f"Total epochs: {total_epochs}, Initial LR: {self.optimizer.param_groups[0]['lr']}")
+        from src.utils.distributed import is_main_process
+        if is_main_process():
+            self.logger.info(f"Starting training on device: {self.device}")
+            self.logger.info(f"Total epochs: {total_epochs}, Initial LR: {self.optimizer.param_groups[0]['lr']}")
 
         start_time = time.time()
 
@@ -240,39 +259,41 @@ class Trainer:
             train_metrics = self.train_one_epoch(epoch)
             val_metrics = self.validate(epoch)
 
-            # Combine epoch metrics
-            epoch_metrics = {**train_metrics, **val_metrics}
-            self.tracker.record(epoch, epoch_metrics)
+            # Combine epoch metrics (rank 0 records & saves checkpoints)
+            if is_main_process():
+                epoch_metrics = {**train_metrics, **val_metrics}
+                self.tracker.record(epoch, epoch_metrics)
 
-            is_best = val_metrics["val_top1"] > self.best_top1
-            if is_best:
-                self.best_top1 = val_metrics["val_top1"]
+                is_best = val_metrics["val_top1"] > self.best_top1
+                if is_best:
+                    self.best_top1 = val_metrics["val_top1"]
 
-            # Save checkpoints
-            if self.exp_dirs and "checkpoints" in self.exp_dirs:
-                save_checkpoint(
-                    state={
-                        "epoch": epoch,
-                        "model_state": self.model.state_dict(),
-                        "optimizer_state": self.optimizer.state_dict(),
-                        "scheduler_state": self.scheduler.state_dict() if self.scheduler else None,
-                        "scaler_state": self.scaler.state_dict() if self.scaler else None,
-                        "best_top1": self.best_top1,
-                        "metrics": epoch_metrics,
-                    },
-                    is_best=is_best,
-                    checkpoint_dir=self.exp_dirs["checkpoints"],
+                # Save checkpoints
+                if self.exp_dirs and "checkpoints" in self.exp_dirs:
+                    raw_model = self.model.module if hasattr(self.model, "module") else self.model
+                    save_checkpoint(
+                        state={
+                            "epoch": epoch,
+                            "model_state": raw_model.state_dict(),
+                            "optimizer_state": self.optimizer.state_dict(),
+                            "scheduler_state": self.scheduler.state_dict() if self.scheduler else None,
+                            "scaler_state": self.scaler.state_dict() if self.scaler else None,
+                            "best_top1": self.best_top1,
+                            "metrics": epoch_metrics,
+                        },
+                        is_best=is_best,
+                        checkpoint_dir=self.exp_dirs["checkpoints"],
+                    )
+
+                # Log summary
+                self.logger.info(
+                    f"Epoch [{epoch:03d}/{total_epochs:03d}] "
+                    f"Train Loss: {train_metrics['train_loss']:.4f} | "
+                    f"Train Acc: {train_metrics['train_top1']:.2f}% | "
+                    f"Val Loss: {val_metrics['val_loss']:.4f} | "
+                    f"Val Acc: {val_metrics['val_top1']:.2f}% | "
+                    f"Best Val: {self.best_top1:.2f}%"
                 )
-
-            # Log summary
-            self.logger.info(
-                f"Epoch [{epoch:03d}/{total_epochs:03d}] "
-                f"Train Loss: {train_metrics['train_loss']:.4f} | "
-                f"Train Acc: {train_metrics['train_top1']:.2f}% | "
-                f"Val Loss: {val_metrics['val_loss']:.4f} | "
-                f"Val Acc: {val_metrics['val_top1']:.2f}% | "
-                f"Best Val: {self.best_top1:.2f}%"
-            )
 
         elapsed = time.time() - start_time
         self.logger.info(f"Training completed in {elapsed / 60:.2f} minutes. Best Val Acc@1: {self.best_top1:.2f}%")
