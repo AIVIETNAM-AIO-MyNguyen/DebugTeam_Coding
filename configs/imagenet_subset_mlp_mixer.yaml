@@ -1,0 +1,51 @@
+# Configuration: MLP-Mixer on ImageNet Subset (ImageNet-100)
+
+experiment:
+  tag: "imagenet_subset_mlp_mixer"
+  base_dir: "runs"
+
+training:
+  seed: 42
+  deterministic: true
+  epochs: 100
+  lr: 0.001
+  use_amp: true
+  grad_clip: 1.0
+  label_smoothing: 0.1
+
+optimizer:
+  name: "adamw"
+  weight_decay: 0.05
+
+scheduler:
+  name: "cosine"
+  min_lr: 1e-6
+
+data:
+  dataset: "imagenet_subset"
+  data_dir: "data/imagenet"
+  num_classes: 100
+  batch_size: 64
+  num_workers: 4
+  pin_memory: true
+  image_size: 224
+  allow_mock: true
+
+augmentation:
+  auto_augment: false
+  rand_augment: true
+  random_erasing: 0.1
+  color_jitter: 0.1
+  use_mixup: true
+  mixup_alpha: 0.8
+  cutmix_alpha: 1.0
+
+model:
+  name: "mlp_mixer"
+  image_size: 224
+  patch_size: 16
+  hidden_dim: 512
+  num_blocks: 8
+  tokens_mlp_dim: 256
+  channels_mlp_dim: 1024
+  dropout: 0.1

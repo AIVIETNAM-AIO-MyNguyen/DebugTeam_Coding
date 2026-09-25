@@ -1,0 +1,54 @@
+# Base Default Configuration for MLP Vision Experiments
+
+experiment:
+  name: null              # If null, automatically generated using naming convention
+  tag: "baseline"         # Tag for this run (e.g. 'baseline', 'drop0.1', 'patch4')
+  base_dir: "runs"        # Directory to store experiment artifacts
+
+training:
+  seed: 42                # Random seed for full reproducibility
+  deterministic: true     # Enforce deterministic PyTorch / cuDNN algorithms
+  epochs: 100             # Total training epochs
+  lr: 0.001               # Initial learning rate
+  use_amp: true           # Enable Automatic Mixed Precision (FP16/BF16 on GPU)
+  grad_clip: 1.0          # Max gradient norm (<= 0 to disable)
+  label_smoothing: 0.0    # Label smoothing factor (0.0 to disable)
+
+optimizer:
+  name: "adamw"           # Options: 'adamw', 'adam', 'sgd'
+  weight_decay: 0.05      # Weight decay
+  momentum: 0.9           # For SGD
+
+scheduler:
+  name: "cosine"          # Options: 'cosine', 'step', 'none'
+  min_lr: 1e-6            # Minimum learning rate for cosine scheduler
+  step_size: 30           # For StepLR
+  gamma: 0.1              # For StepLR
+
+data:
+  dataset: "cifar100"     # Options: 'cifar100', 'tiny_imagenet', 'imagenet_subset'
+  data_dir: "data"        # Dataset storage root
+  batch_size: 128         # Batch size
+  num_workers: 4          # DataLoader multiprocessing workers
+  pin_memory: true        # Fast GPU memory pinning
+  image_size: null        # Target image resolution (null = dataset native)
+  val_split: 0.1          # Train/val split fraction for CIFAR-100
+  download: true          # Auto-download if supported
+
+augmentation:
+  auto_augment: false     # AutoAugment policy
+  rand_augment: false     # RandAugment policy
+  random_erasing: 0.0     # Cutout / Random Erasing probability
+  color_jitter: 0.0       # Color jitter factor
+  use_mixup: false        # Enable Mixup / CutMix
+  mixup_alpha: 0.8        # Beta distribution parameter for Mixup
+  cutmix_alpha: 1.0       # Beta distribution parameter for CutMix
+
+model:
+  name: "mlp_mixer"       # Registered model name
+  patch_size: 4           # Patch size
+  hidden_dim: 256         # Feature dimension
+  num_blocks: 8           # Number of mixer blocks
+  tokens_mlp_dim: 128     # Hidden dim in token-mixing MLP
+  channels_mlp_dim: 512   # Hidden dim in channel-mixing MLP
+  dropout: 0.0            # Dropout rate
