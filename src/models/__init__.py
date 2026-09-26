@@ -10,6 +10,7 @@ import torch.nn as nn
 from src.models.base import BaseClassifier, MODEL_REGISTRY, list_models, register_model
 # Import all model files to trigger registration
 import src.models.mlp_mixer  # noqa: F401
+import src.models.res_mlp
 
 
 def build_model(cfg) -> BaseClassifier:
