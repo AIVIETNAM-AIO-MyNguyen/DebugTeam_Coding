@@ -139,3 +139,27 @@ def test_build_rep_mlp_dws_from_config():
     model = build_model(cfg)
     assert isinstance(model, RepMLPDWS)
     assert model.num_parameters() > 0
+
+
+def test_load_and_build_from_yaml_configs():
+    from src.config.parser import load_config
+
+    # Test CIFAR-100 YAML config
+    cfg_cifar = load_config(
+        config_path="configs/cifar100_rep_mlp_dws.yaml",
+        default_config_path="configs/default.yaml",
+    )
+    model_cifar = build_model(cfg_cifar)
+    assert isinstance(model_cifar, RepMLPDWS)
+    assert model_cifar.image_size == 32
+    assert model_cifar.num_classes == 100
+
+    # Test Tiny-ImageNet YAML config
+    cfg_tiny = load_config(
+        config_path="configs/tiny_imagenet_rep_mlp_dws.yaml",
+        default_config_path="configs/default.yaml",
+    )
+    model_tiny = build_model(cfg_tiny)
+    assert isinstance(model_tiny, RepMLPDWS)
+    assert model_tiny.image_size == 64
+    assert model_tiny.num_classes == 200
