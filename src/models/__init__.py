@@ -12,6 +12,7 @@ from src.models.base import BaseClassifier, MODEL_REGISTRY, list_models, registe
 import src.models.mlp_mixer  # noqa: F401
 import src.models.res_mlp
 import src.models.rep_mlp
+import src.models.rep_mlp_dws
 
 
 def build_model(cfg) -> BaseClassifier:
