@@ -11,6 +11,7 @@ from src.models.base import BaseClassifier, MODEL_REGISTRY, list_models, registe
 # Import all model files to trigger registration
 import src.models.mlp_mixer  # noqa: F401
 import src.models.res_mlp
+import src.models.rep_mlp
 
 
 def build_model(cfg) -> BaseClassifier:
