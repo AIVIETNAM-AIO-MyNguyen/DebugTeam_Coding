@@ -10,6 +10,48 @@ from typing import Optional, Tuple, Union
 import torch
 from torch.utils.data import DataLoader, Dataset, Subset, random_split
 from torchvision.datasets import CIFAR100
+from torchvision.datasets.utils import download_and_extract_archive
+
+# High-speed HuggingFace mirror for CIFAR-100 (bypasses 67kB/s rate-limiting on Toronto server)
+HUGGINGFACE_CIFAR100_URL = (
+    "https://huggingface.co/datasets/nakroy/cifar100-python/resolve/main/cifar-100-python.tar.gz"
+)
+TORONTO_CIFAR100_URL = "https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz"
+
+
+class FastCIFAR100(CIFAR100):
+    """
+    Subclass of torchvision CIFAR100 using a high-speed HuggingFace CDN mirror
+    with automatic fallback to the official University of Toronto server.
+    """
+    url = HUGGINGFACE_CIFAR100_URL
+
+    def download(self) -> None:
+        if self._check_integrity():
+            return
+
+        import os
+        os.makedirs(self.root, exist_ok=True)
+        try:
+            print(f"Downloading CIFAR-100 from high-speed HuggingFace mirror: {HUGGINGFACE_CIFAR100_URL}")
+            download_and_extract_archive(
+                HUGGINGFACE_CIFAR100_URL,
+                self.root,
+                filename=self.filename,
+                md5=self.tgz_md5,
+            )
+        except Exception as e:
+            print(f"HuggingFace mirror failed ({e}), falling back to official Toronto server...")
+            download_and_extract_archive(
+                TORONTO_CIFAR100_URL,
+                self.root,
+                filename=self.filename,
+                md5=self.tgz_md5,
+            )
+
+
+# Monkey-patch global torchvision CIFAR100.url so any direct calls also use the fast mirror
+CIFAR100.url = HUGGINGFACE_CIFAR100_URL
 
 from src.data.transforms import MixupCutmixCollate, get_transforms
 from src.utils.seed import get_generator, seed_worker
@@ -47,6 +89,28 @@ def get_cifar100_datasets(
     data_dir = Path(data_dir)
     data_dir.mkdir(parents=True, exist_ok=True)
 
+    # Check for pre-mounted Kaggle/Colab datasets to bypass slow Toronto HTTP download
+    kaggle_candidates = [
+        Path("/kaggle/input/cifar100-python"),
+        Path("/kaggle/input/cifar-100-python"),
+        Path("/kaggle/input/cifar100"),
+        Path("/kaggle/input/cifar-100"),
+    ]
+    for cand in kaggle_candidates:
+        if cand.is_dir():
+            if (cand / "cifar-100-python").is_dir():
+                data_dir = cand
+                download = False
+                break
+            elif (cand / "train").is_file():
+                data_dir = cand.parent
+                download = False
+                break
+
+    # If dataset already exists locally, disable download to avoid re-triggering slow server check
+    if (data_dir / "cifar-100-python" / "train").is_file():
+        download = False
+
     train_transform = get_transforms(
         dataset_name="cifar100",
         image_size=image_size,
@@ -63,12 +127,12 @@ def get_cifar100_datasets(
         is_train=False,
     )
 
-    test_dataset = CIFAR100(root=str(data_dir), train=False, download=download, transform=eval_transform)
+    test_dataset = FastCIFAR100(root=str(data_dir), train=False, download=download, transform=eval_transform)
 
     if val_split > 0.0:
         # Load two copies of full train data: one with train transforms, one with eval transforms
-        full_train_aug = CIFAR100(root=str(data_dir), train=True, download=download, transform=train_transform)
-        full_train_eval = CIFAR100(root=str(data_dir), train=True, download=download, transform=eval_transform)
+        full_train_aug = FastCIFAR100(root=str(data_dir), train=True, download=download, transform=train_transform)
+        full_train_eval = FastCIFAR100(root=str(data_dir), train=True, download=download, transform=eval_transform)
 
         total_train = len(full_train_aug)
         val_len = int(total_train * val_split)
@@ -83,7 +147,7 @@ def get_cifar100_datasets(
         train_dataset = Subset(full_train_aug, train_indices)
         val_dataset = Subset(full_train_eval, val_indices)
     else:
-        train_dataset = CIFAR100(root=str(data_dir), train=True, download=download, transform=train_transform)
+        train_dataset = FastCIFAR100(root=str(data_dir), train=True, download=download, transform=train_transform)
         val_dataset = test_dataset
 
     return train_dataset, val_dataset, test_dataset
@@ -146,6 +210,7 @@ def get_cifar100_dataloaders(
         train_sampler = None
         shuffle = True
 
+    persistent_workers = num_workers > 0
     train_loader = DataLoader(
         train_ds,
         batch_size=batch_size,
@@ -153,6 +218,7 @@ def get_cifar100_dataloaders(
         sampler=train_sampler,
         num_workers=num_workers,
         pin_memory=pin_memory,
+        persistent_workers=persistent_workers,
         worker_init_fn=seed_worker,
         generator=get_generator(seed) if train_sampler is None else None,
         collate_fn=collate_fn,
@@ -165,6 +231,7 @@ def get_cifar100_dataloaders(
         shuffle=False,
         num_workers=num_workers,
         pin_memory=pin_memory,
+        persistent_workers=persistent_workers,
         worker_init_fn=seed_worker,
         drop_last=False,
     )
@@ -175,6 +242,7 @@ def get_cifar100_dataloaders(
         shuffle=False,
         num_workers=num_workers,
         pin_memory=pin_memory,
+        persistent_workers=persistent_workers,
         worker_init_fn=seed_worker,
         drop_last=False,
     )
