@@ -262,6 +262,7 @@ def get_imagenet_subset_dataloaders(
         train_sampler = None
         shuffle = True
 
+    persistent_workers = num_workers > 0
     train_loader = DataLoader(
         train_ds,
         batch_size=batch_size,
@@ -269,6 +270,7 @@ def get_imagenet_subset_dataloaders(
         sampler=train_sampler,
         num_workers=num_workers,
         pin_memory=pin_memory,
+        persistent_workers=persistent_workers,
         worker_init_fn=seed_worker,
         generator=get_generator(seed) if train_sampler is None else None,
         collate_fn=collate_fn,
@@ -281,6 +283,7 @@ def get_imagenet_subset_dataloaders(
         shuffle=False,
         num_workers=num_workers,
         pin_memory=pin_memory,
+        persistent_workers=persistent_workers,
         worker_init_fn=seed_worker,
         drop_last=False,
     )
@@ -291,6 +294,7 @@ def get_imagenet_subset_dataloaders(
         shuffle=False,
         num_workers=num_workers,
         pin_memory=pin_memory,
+        persistent_workers=persistent_workers,
         worker_init_fn=seed_worker,
         drop_last=False,
     )

@@ -176,7 +176,7 @@ class Trainer:
             images = images.to(self.device, non_blocking=True)
             targets = targets.to(self.device, non_blocking=True)
 
-            self.optimizer.zero_grad()
+            self.optimizer.zero_grad(set_to_none=True)
 
             with torch.amp.autocast("cuda", enabled=self.use_amp):
                 outputs = self.model(images)
@@ -279,19 +279,21 @@ class Trainer:
                 # Save checkpoints
                 if self.exp_dirs and "checkpoints" in self.exp_dirs:
                     raw_model = self.model.module if hasattr(self.model, "module") else self.model
+                    state = {
+                        "epoch": epoch,
+                        "model_state": raw_model.state_dict(),
+                        "optimizer_state": self.optimizer.state_dict(),
+                        "scheduler_state": self.scheduler.state_dict() if self.scheduler else None,
+                        "scaler_state": self.scaler.state_dict() if self.scaler else None,
+                        "best_top1": self.best_top1,
+                        "metrics": epoch_metrics,
+                    }
                     save_checkpoint(
-                        state={
-                            "epoch": epoch,
-                            "model_state": raw_model.state_dict(),
-                            "optimizer_state": self.optimizer.state_dict(),
-                            "scheduler_state": self.scheduler.state_dict() if self.scheduler else None,
-                            "scaler_state": self.scaler.state_dict() if self.scaler else None,
-                            "best_top1": self.best_top1,
-                            "metrics": epoch_metrics,
-                        },
+                        state=state,
                         is_best=is_best,
                         checkpoint_dir=self.exp_dirs["checkpoints"],
                     )
+                    del state
 
                 # Log summary
                 self.logger.info(
@@ -303,6 +305,12 @@ class Trainer:
                     f"Best Val: {self.best_top1:.2f}%"
                 )
 
+            # Explicit garbage collection to release host RAM and GPU VRAM every epoch
+            import gc
+            gc.collect()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+
         elapsed = time.time() - start_time
         self.logger.info(f"Training completed in {elapsed / 60:.2f} minutes. Best Val Acc@1: {self.best_top1:.2f}%")
 
@@ -310,3 +318,26 @@ class Trainer:
             "best_top1": self.best_top1,
             "history": self.tracker.history,
         }
+
+    def resume_from_checkpoint(self, checkpoint_path: Union[str, Path]) -> int:
+        """
+        Restores model, optimizer, scheduler, scaler, and best_top1 from a checkpoint.
+        Returns the epoch to resume training from.
+        """
+        from src.utils.checkpoint import load_checkpoint
+        raw_model = self.model.module if hasattr(self.model, "module") else self.model
+        ckpt = load_checkpoint(
+            checkpoint_path=checkpoint_path,
+            model=raw_model,
+            optimizer=self.optimizer,
+            scheduler=self.scheduler,
+            scaler=self.scaler,
+            map_location=self.device,
+        )
+        self.start_epoch = ckpt.get("epoch", 0) + 1
+        self.best_top1 = ckpt.get("best_top1", 0.0)
+        self.logger.info(
+            f"Successfully resumed checkpoint from {checkpoint_path}. "
+            f"Resuming at epoch {self.start_epoch} (Best Top1: {self.best_top1:.2f}%)"
+        )
+        return self.start_epoch
