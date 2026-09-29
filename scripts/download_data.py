@@ -16,7 +16,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from torchvision.datasets import CIFAR100
+from src.data.cifar100 import FastCIFAR100
 from src.data.tiny_imagenet import download_and_extract_tiny_imagenet
 from src.data.imagenet_subset import generate_mock_imagenet_data
 
@@ -47,8 +47,8 @@ def main():
     if args.dataset in ("cifar100", "all"):
         print("\n--- Downloading CIFAR-100 ---")
         cifar_dir = data_dir / "cifar100"
-        CIFAR100(root=str(cifar_dir), train=True, download=True)
-        CIFAR100(root=str(cifar_dir), train=False, download=True)
+        FastCIFAR100(root=str(cifar_dir), train=True, download=True)
+        FastCIFAR100(root=str(cifar_dir), train=False, download=True)
         print(f"CIFAR-100 downloaded to {cifar_dir}")
 
     if args.dataset in ("tiny_imagenet", "all"):
