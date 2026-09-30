@@ -17,6 +17,7 @@ import src.models.rep_mlp_sep
 import src.models.res_mlp_rep_token
 import src.models.res_mlp_local_stem
 import src.models.pyramid_res_mlp
+import src.models.pyramid_res_mlp_pure
 
 
 def build_model(cfg) -> BaseClassifier:
