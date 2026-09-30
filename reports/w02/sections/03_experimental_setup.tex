@@ -1,0 +1,188 @@
+\section{Experimental Setup \& Mathematical Parameter Formulation}
+\label{sec:experimental_setup}
+
+\subsection{Unified experimental pipeline}
+To make sure our comparison is completely fair, both models are trained with the exact same training pipeline implemented in \texttt{src/engine/trainer.py}. We set a fixed random seed of 42 across Python, NumPy, and PyTorch backends for full reproducibility.
+
+\begin{itemize}[leftmargin=1.5em]
+    \item \textbf{Dataset and split:} We use CIFAR-100, which contains 60,000 color images of size $32 \times 32$ across 100 classes (500 training images per class). This data-limited setting is well suited for testing data efficiency, because vision models without spatial inductive bias often suffer from data hunger when trained from scratch. We split the 50,000 images into 45,000 images for training and 5,000 images for validation, reserving the remaining 10,000 images for final testing.
+    \item \textbf{Data augmentation:} Pure MLPs have high representational capacity but lack built-in spatial invariance, making them prone to memorizing training samples. We use RandAugment ($N=2, M=9$), Random Erasing ($p=0.1$), and Color Jitter ($0.1$) to introduce geometric and color variations. Furthermore, we apply Mixup ($\alpha=0.8$) and CutMix ($\alpha=1.0$) to blend pairs of images and labels, which encourages the network to learn smoother decision boundaries and prevents overfitting to specific pixel patterns.
+    \item \textbf{Optimizer and schedule:} We train both models for 100 epochs using AdamW with an initial learning rate of $10^{-3}$, weight decay of $0.05$, and momentum parameters $(\beta_1, \beta_2) = (0.9, 0.999)$. AdamW decouples weight decay from gradient updates, providing stable regularization across linear layers and normalization scales. The learning rate decays smoothly down to $10^{-6}$ using a Cosine Annealing schedule, allowing broad exploration of the loss surface early on and fine convergence into stable minima near the end.
+    \item \textbf{Loss function and precision:} We use cross-entropy loss with label smoothing ($\epsilon=0.1$) to soften one-hot targets, keeping the network from becoming overconfident on fine-grained class boundaries. Gradient clipping at maximum norm $1.0$ prevents sudden gradient spikes. We also enable PyTorch Automatic Mixed Precision (AMP FP16), which cuts memory usage in half and accelerates training on GPU Tensor Cores.
+\end{itemize}
+
+\subsection{Mathematical derivation of learnable parameters in ResMLP}
+\label{subsec:resmlp_param_derivation}
+ResMLP~\cite{touvron2021resmlp} uses an isotropic columnar structure where the token count $N$ and channel dimension $D$ stay constant across all $L$ layers. For an input image $\mathbf{X} \in \mathbb{R}^{B \times C_{\text{in}} \times H \times W}$ with $C_{\text{in}}=3$ and $H=W=32$, the image is divided into non-overlapping patches of size $P \times P$ ($P=4$):
+\begin{equation}
+    N = \left(\frac{H}{P}\right) * \left(\frac{W}{P}\right) = \left(\frac{32}{4}\right)^2 = 64 \quad \text{tokens.}
+\end{equation}
+Our configuration uses embedding dimension $D=256$, depth $L=8$, FFN expansion factor $E=2$, and $K=100$ classes. We calculate the exact parameter count for each component below:
+
+\subsubsection{Patch projection stem}
+The patch embedding uses a 2D convolution with kernel size $P=4$ and stride $P=4$, mapping from $C_{\text{in}}=3$ to $D=256$ channels:
+\begin{equation}
+    P_{\text{stem}} = \underbrace{(C_{\text{in}} * P^2) * D}_{\text{Conv weights}} + \underbrace{D}_{\text{Bias}} = (3 * 16) * 256 + 256 = 12,288 + 256 = \mathbf{12,544}.
+\end{equation}
+
+\subsubsection{ResMLP block (repeated $L=8$ times)}
+Each ResMLP block contains two residual sublayers:
+\begin{enumerate}[label=(\alph*)]
+    \item \textbf{Token-mixing sublayer:} Tokens communicate along the sequence dimension $N$, shared across all channels $D$:
+    \begin{itemize}
+        \item Two Affine layers (scale $\bm{\alpha} \in \mathbb{R}^D$ and bias $\bm{\beta} \in \mathbb{R}^D$): $2 * 2D = 4D = 4 * 256 = 1,024$.
+        \item Spatial Linear layer $\text{Linear}(N, N)$ with weight matrix $\mathbf{W}_{\text{token}} \in \mathbb{R}^{N \times N}$ and bias $\bm{b}_{\text{token}} \in \mathbb{R}^N$:
+        \begin{equation}
+            N^2 + N = 64^2 + 64 = 4,096 + 64 = 4,160.
+        \end{equation}
+    \end{itemize}
+    Total parameters for the token-mixing sublayer per block:
+    \begin{equation}
+        P_{\text{token}} = 4D + N^2 + N = 1,024 + 4,160 = \mathbf{5,184}.
+    \end{equation}
+
+    \item \textbf{Channel-mixing sublayer (FFN):} Projects channel dimensions from $D$ to $E * D$ and back:
+    \begin{itemize}
+        \item Two Affine layers: $2 * 2D = 4D = 1,024$.
+        \item Linear expansion $\text{Linear}(D, E * D)$: $D * (E * D) + E * D = 2 * 256^2 + 2 * 256 = 131,072 + 512 = 131,584$.
+        \item GELU activation: $0$ parameters.
+        \item Linear projection $\text{Linear}(E * D, D)$: $(E * D) * D + D = 2 * 256^2 + 256 = 131,072 + 256 = 131,328$.
+    \end{itemize}
+    Total parameters for the channel-mixing sublayer per block:
+    \begin{equation}
+        P_{\text{channel}} = 4D + 2 * E * D^2 + (E + 1) * D = 1,024 + 262,144 + 768 = \mathbf{263,936}.
+    \end{equation}
+\end{enumerate}
+Adding both sublayers gives the total parameters per ResMLP block:
+\begin{equation}
+    P_{\text{block}} = P_{\text{token}} + P_{\text{channel}} = 5,184 + 263,936 = \mathbf{269,120}.
+\end{equation}
+For the entire backbone of $L=8$ blocks:
+\begin{equation}
+    P_{\text{backbone}} = L * P_{\text{block}} = 8 * 269,120 = \mathbf{2,152,960}.
+\end{equation}
+
+\subsubsection{Classification head}
+Global average pooling over the $N$ tokens uses 0 parameters. The classification head is a single layer $\text{Linear}(D, K)$ mapping to $K=100$ classes:
+\begin{equation}
+    P_{\text{head}} = D * K + K = 256 * 100 + 100 = 25,600 + 100 = \mathbf{25,700}.
+\end{equation}
+
+\subsubsection{Total parameters in ResMLP}
+Combining all parts, the total parameter count of ResMLP is given by:
+\begin{equation}
+    \label{eq:resmlp_param_formula}
+    \boxed{P_{\text{ResMLP}} = (C_{\text{in}} * P^2 + 1) * D + L * \Big[ 2 * E * D^2 + (E + 9) * D + N^2 + N \Big] + (K * D + K)}
+\end{equation}
+Plugging in our values ($C_{\text{in}}=3, P=4, D=256, N=64, E=2, L=8, K=100$):
+\begin{equation}
+    P_{\text{ResMLP}} = 12,544 + 2,152,960 + 25,700 = \mathbf{2,191,204} \quad (\approx \mathbf{2.19\text{M}}).
+\end{equation}
+
+\begin{table}[t]
+\centering
+\adjustbox{max width=\linewidth}{%
+\begin{tabularx}{\linewidth}{lXrr}
+\toprule
+\rowcolor{aivnGreen!12}
+\textbf{Submodule / layer} & \textbf{Component details} & \textbf{Parameters} & \textbf{Percentage (\%)} \\
+\midrule
+Patch embedding & $\text{Conv2d}(3, 256, 4, \text{stride}=4)$ with bias & 12,544 & 0.57\% \\
+ResMLP blocks ($L=8$) & & & \\
+\quad -- Token-mixing sublayers & $8 * [4D + N^2 + N] = 8 * 5,184$ & 41,472 & 1.89\% \\
+\quad -- Channel-mixing sublayers (FFN) & $8 * [4D + 2ED^2 + (E+1)D] = 8 * 263,936$ & 2,111,488 & 96.36\% \\
+Classification head & $\text{Linear}(256, 100)$ with bias & 25,700 & 1.17\% \\
+\midrule
+\textbf{Total parameters} & & \textbf{2,191,204} & \textbf{100.00\%} \\
+\bottomrule
+\end{tabularx}%
+}
+\vspace{0.6em}
+\caption{Layer-by-layer parameter breakdown of ResMLP ($D=256, L=8, E=2$).}
+\label{tab:resmlp_breakdown}
+\end{table}
+
+\subsection{Mathematical derivation of learnable parameters in RepMLP}
+\label{subsec:repmlp_param_derivation}
+Unlike ResMLP's single-resolution design, RepMLP~\cite{ding2022repmlp} uses a multi-stage architecture with local spatial partitions and re-parameterization. For an input image of size $32 \times 32$, the model processes features through a stem followed by three progressive stages:
+\begin{itemize}[leftmargin=1.5em]
+    \item \textbf{Channel dimensions:} $\mathbf{C} = [C_0, C_1, C_2] = [64, 128, 256]$.
+    \item \textbf{Stage depths:} $\mathbf{B} = [B_0, B_1, B_2] = [2, 4, 2]$ blocks.
+    \item \textbf{Sharesets:} $\mathbf{S} = [S_0, S_1, S_2] = [1, 4, 16]$.
+    \item \textbf{Feature map resolution:} Stage 0 ($16 \times 16$), Stage 1 ($8 \times 8$), Stage 2 ($4 \times 4$).
+\end{itemize}
+
+During training, each RepMLP block includes:
+\begin{enumerate}[label=(\alph*)]
+    \item \textbf{Global perceptron (GP):} Squeeze-and-excitation channel attention.
+    \item \textbf{Partition-based FC3:} Fully connected layer operating on local $h \times w$ partitions with $S$ sharesets.
+    \item \textbf{Auxiliary conv branches:} Parallel $1 \times 1$ and $3 \times 3$ depthwise convolutions with BatchNorm to add local image features during training.
+    \item \textbf{Feed-forward network (FFN):} Two $1 \times 1$ convolutions with expansion factor 4 and GELU activation.
+\end{enumerate}
+
+The parameter count during training is calculated as follows:
+
+\subsubsection{Patch embedding stem}
+The stem uses a $\text{Conv2d}(3, 64, \text{kernel}=2, \text{stride}=2)$ without bias, followed by $\text{BatchNorm2d}(64)$:
+\begin{equation}
+    P_{\text{stem}} = \underbrace{(3 * 2 * 2) * 64}_{\text{Conv weights}} + \underbrace{2 * 64}_{\text{BN}} = 768 + 128 = \mathbf{896}.
+\end{equation}
+
+\subsubsection{RepMLP stages and transition layers}
+Each stage $i \in \{0, 1, 2\}$ contains $B_i$ RepMLP units, followed by a stride-2 transition convolution (for stages $0 \to 1$ and $1 \to 2$):
+\begin{itemize}[leftmargin=1.5em]
+    \item \textbf{Stage 0 ($C_0=64, B_0=2, S_0=1$):}
+    \begin{itemize}
+        \item Two RepMLP units: $202,688$ parameters.
+        \item Transition layer ($64 \to 128$, kernel 2, stride 2 + BN): $(128 * 64 * 4) + (2 * 128) = 32,768 + 256 = \mathbf{33,024}$.
+        \item Stage 0 total: $202,688 + 33,024 = \mathbf{235,712}$.
+    \end{itemize}
+    \item \textbf{Stage 1 ($C_1=128, B_1=4, S_1=4$):}
+    \begin{itemize}
+        \item Four RepMLP units: $630,656$ parameters.
+        \item Transition layer ($128 \to 256$, kernel 2, stride 2 + BN): $(256 * 128 * 4) + (2 * 256) = 131,072 + 512 = \mathbf{131,584}$.
+        \item Stage 1 total: $630,656 + 131,584 = \mathbf{762,240}$.
+    \end{itemize}
+    \item \textbf{Stage 2 ($C_2=256, B_2=2, S_2=16$):}
+    \begin{itemize}
+        \item Two RepMLP units: $\mathbf{1,130,624}$ parameters (final stage, no transition needed).
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Classification head}
+The head uses a final $\text{BatchNorm2d}(256)$ followed by global average pooling and a linear layer $\text{Linear}(256, 100)$:
+\begin{equation}
+    P_{\text{head}} = \underbrace{2 * 256}_{\text{BN}} + \underbrace{(256 * 100 + 100)}_{\text{Linear}} = 512 + 25,700 = \mathbf{26,212}.
+\end{equation}
+
+\subsubsection{Total parameters in RepMLP}
+Adding up the stem, all three stages, transitions, and the classification head:
+\begin{equation}
+    P_{\text{RepMLP}} = 896 + 235,712 + 762,240 + 1,130,624 + 26,212 = \mathbf{2,155,684} \quad (\approx \mathbf{2.16\text{M}}).
+\end{equation}
+
+\begin{table}[t]
+\centering
+\adjustbox{max width=\linewidth}{%
+\begin{tabularx}{\linewidth}{lXrr}
+\toprule
+\rowcolor{aivnGreen!12}
+\textbf{Submodule / stage} & \textbf{Component details} & \textbf{Parameters} & \textbf{Percentage (\%)} \\
+\midrule
+Patch embedding stem & $\text{Conv2d}(3, 64, 2, \text{stride}=2) + \text{BN}(64)$ & 896 & 0.04\% \\
+Stage 0 ($16 \times 16, C=64$) & 2 RepMLP units ($202,688$) + Transition $64 \to 128$ ($33,024$) & 235,712 & 10.93\% \\
+Stage 1 ($8 \times 8, C=128$) & 4 RepMLP units ($630,656$) + Transition $128 \to 256$ ($131,584$) & 762,240 & 35.36\% \\
+Stage 2 ($4 \times 4, C=256$) & 2 RepMLP units (final stage, no transition) & 1,130,624 & 52.45\% \\
+Classification head & $\text{BatchNorm2d}(256) + \text{Linear}(256, 100)$ with bias & 26,212 & 1.22\% \\
+\midrule
+\textbf{Total parameters} & & \textbf{2,155,684} & \textbf{100.00\%} \\
+\bottomrule
+\end{tabularx}%
+}
+\vspace{0.6em}
+\caption{Layer-by-layer parameter breakdown of RepMLP ($C=[64, 128, 256], B=[2, 4, 2]$).}
+\label{tab:repmlp_breakdown}
+\end{table}
+
+\subsection{Controlled evaluation and fair comparison}
+As shown in the formulas above, ResMLP ($2,191,204$ parameters) and RepMLP ($2,155,684$ parameters) are matched closely in size (only $1.62\%$ difference). Because both models use virtually the same parameter budget ($\approx 2.16\text{M} - 2.19\text{M}$), training length (100 epochs), and augmentations, any performance difference comes directly from their architectures.

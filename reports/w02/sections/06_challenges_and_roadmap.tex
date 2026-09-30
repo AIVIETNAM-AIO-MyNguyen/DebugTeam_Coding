@@ -1,0 +1,30 @@
+\section{Technical Challenges, Week 03 Roadmap \& TA Consultation}
+\label{sec:challenges_and_roadmap}
+
+\subsection{Technical challenges resolved in Week 02}
+During Week 02, we ran into and fixed three main engineering issues:
+\begin{enumerate}[label=\textbf{\arabic*.}]
+    \item \textbf{DataLoader memory stability:} When training for 100 epochs with heavy augmentations (RandAugment, Mixup, CutMix), PyTorch worker processes gradually caused memory fragmentation. We resolved this by setting \texttt{persistent\_workers=True}, allocating fixed shared memory, and caching dataset items, which kept RAM usage stable throughout long runs.
+    \item \textbf{Balancing parameter counts:} To compare an isotropic model (ResMLP) with a multi-stage model (RepMLP) fairly, we adjusted layer depths and channel widths so that both models have almost the same size ($\approx 2.16\text{M} - 2.19\text{M}$ parameters, a $1.6\%$ difference).
+    \item \textbf{Mixed precision training stability:} Training deep Vision MLPs from scratch in FP16 can occasionally lead to underflow during early epochs. We added dynamic loss scaling via PyTorch AMP and set gradient clipping at norm $1.0$, which prevented any numerical underflow or overflow.
+\end{enumerate}
+
+\subsection{Week 03 roadmap}
+With our baseline models replicated, our plan for \textbf{Week 03} focuses on four key tasks:
+
+\begin{itemize}[leftmargin=1.5em]
+    \item \textbf{Train the proposed hybrid model:} Train and evaluate our proposed model, which adds structural re-parameterization directly into ResMLP's linear token-mixing layer. We will measure its accuracy gain on CIFAR-100 compared to the baselines.
+    \item \textbf{Verify weight fusion mathematically:} Implement automated tests to confirm that folding the convolutional branches into the linear token matrix produces the exact same output:
+    \begin{equation}
+        \max \|\mathbf{Y}_{\text{train\_eval}} - \mathbf{Y}_{\text{deployed}}\|_{\infty} < 10^{-4}.
+    \end{equation}
+    \item \textbf{Profile inference speed and latency:} Measure latency (ms), throughput (images/sec), and GPU memory usage to verify that the deployed model runs at the same speed as vanilla ResMLP without extra overhead.
+    \item \textbf{Scale to Tiny-ImageNet:} Run experiments on Tiny-ImageNet ($64 * 64$ resolution, 200 classes) to see how the models perform on slightly larger images.
+\end{itemize}
+
+\subsection{Questions for Teaching Assistant (TA) consultation}
+We have prepared two specific technical questions for our assigned Teaching Assistant:
+\begin{enumerate}[label=\textbf{Q\arabic*:}]
+    \item \textbf{Inference speed benchmarking:} When measuring inference speed and verifying the zero-overhead claim of re-parameterization, is benchmarking directly in PyTorch using \texttt{torch.cuda.Event} (with warm-up and synchronization) sufficient, or should we export the model to ONNX Runtime or TensorRT?
+    \item \textbf{Parameter budgeting on larger images:} When moving from CIFAR-100 ($32 * 32$) to Tiny-ImageNet ($64 * 64$), should we keep the parameter count around $\approx 2.5\text{M}$ (for example by using patch size $P=8$ to keep 64 tokens), or should we increase the model size to match the higher resolution?
+\end{enumerate}

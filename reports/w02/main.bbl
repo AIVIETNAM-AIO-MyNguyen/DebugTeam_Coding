@@ -1,0 +1,772 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated as
+% required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+\datalist[entry]{none/global//global/global}
+  \entry{roy2025hourly}{article}{}
+    \name{author}{3}{}{%
+      {{hash=RM}{%
+         family={Roy},
+         familyi={R\bibinitperiod},
+         given={Millend},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=PV}{%
+         family={Pyltsov},
+         familyi={P\bibinitperiod},
+         given={Vladimir},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=HY}{%
+         family={Hu},
+         familyi={H\bibinitperiod},
+         given={Yinbo},
+         giveni={Y\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{RM+1}
+    \strng{fullhash}{RMPVHY1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{{IISE PG\&E} Energy Analytics Challenge 2025: Hourly-Binned
+  Regression Models Beat Transformers in Load Forecasting}
+    \field{journaltitle}{arXiv preprint arXiv:2505.11390}
+    \field{year}{2025}
+  \endentry
+
+  \entry{hong2016probabilistic}{article}{}
+    \name{author}{2}{}{%
+      {{hash=HT}{%
+         family={Hong},
+         familyi={H\bibinitperiod},
+         given={Tao},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=FS}{%
+         family={Fan},
+         familyi={F\bibinitperiod},
+         given={Shu},
+         giveni={S\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{HT+1}
+    \strng{fullhash}{HTFS1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{3}
+    \field{pages}{914\bibrangedash 938}
+    \field{title}{Probabilistic electric load forecasting: A tutorial review}
+    \field{volume}{32}
+    \field{journaltitle}{International Journal of Forecasting}
+    \field{year}{2016}
+  \endentry
+
+  \entry{pge2025zenodo}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=CPEAC}{%
+         family={Committee},
+         familyi={C\bibinitperiod},
+         given={PG\&E Energy Analytics\bibnamedelima Challenge},
+         giveni={P\bibinitperiod\bibinitdelim E\bibinitperiod\bibinitdelim
+  A\bibinitperiod\bibinitdelim C\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Zenodo}%
+    }
+    \strng{namehash}{CPEAC1}
+    \strng{fullhash}{CPEAC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.5281/zenodo.17085273
+    \endverb
+    \field{title}{2025 {PG\&E} Energy Analytics Challenge: Electric Load
+  Forecasting Datasets}
+    \verb{url}
+    \verb https://doi.org/10.5281/zenodo.17085273
+    \endverb
+    \field{year}{2025}
+  \endentry
+
+  \entry{nie2023time}{inproceedings}{}
+    \name{author}{4}{}{%
+      {{hash=NY}{%
+         family={Nie},
+         familyi={N\bibinitperiod},
+         given={Yuqi},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=NNH}{%
+         family={Nguyen},
+         familyi={N\bibinitperiod},
+         given={Nam\bibnamedelima H.},
+         giveni={N\bibinitperiod\bibinitdelim H\bibinitperiod},
+      }}%
+      {{hash=SP}{%
+         family={Sinthong},
+         familyi={S\bibinitperiod},
+         given={Phanwadee},
+         giveni={P\bibinitperiod},
+      }}%
+      {{hash=KJ}{%
+         family={Kalagnanam},
+         familyi={K\bibinitperiod},
+         given={Jayant},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{NY+1}
+    \strng{fullhash}{NYNNHSPKJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{International Conference on Learning Representations
+  (ICLR)}
+    \field{title}{A Time Series is Worth 64 Words: Long-term Forecasting with
+  Transformers}
+    \field{year}{2023}
+  \endentry
+
+  \entry{zhou2021informer}{inproceedings}{}
+    \name{author}{7}{}{%
+      {{hash=ZH}{%
+         family={Zhou},
+         familyi={Z\bibinitperiod},
+         given={Haoyi},
+         giveni={H\bibinitperiod},
+      }}%
+      {{hash=ZS}{%
+         family={Zhang},
+         familyi={Z\bibinitperiod},
+         given={Shanghang},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=PJ}{%
+         family={Peng},
+         familyi={P\bibinitperiod},
+         given={Jieqi},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=ZS}{%
+         family={Zhang},
+         familyi={Z\bibinitperiod},
+         given={Shuai},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=LJ}{%
+         family={Li},
+         familyi={L\bibinitperiod},
+         given={Jianxin},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=XH}{%
+         family={Xiong},
+         familyi={X\bibinitperiod},
+         given={Hui},
+         giveni={H\bibinitperiod},
+      }}%
+      {{hash=ZW}{%
+         family={Zhang},
+         familyi={Z\bibinitperiod},
+         given={Wancai},
+         giveni={W\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{ZH+1}
+    \strng{fullhash}{ZHZSPJZSLJXHZW1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Proceedings of the AAAI Conference on Artificial
+  Intelligence}
+    \field{number}{12}
+    \field{pages}{11106\bibrangedash 11115}
+    \field{title}{Informer: Beyond efficient transformer for long sequence
+  time-series forecasting}
+    \field{volume}{35}
+    \field{year}{2021}
+  \endentry
+
+  \entry{wu2021autoformer}{article}{}
+    \name{author}{4}{}{%
+      {{hash=WH}{%
+         family={Wu},
+         familyi={W\bibinitperiod},
+         given={Haixu},
+         giveni={H\bibinitperiod},
+      }}%
+      {{hash=XJ}{%
+         family={Xu},
+         familyi={X\bibinitperiod},
+         given={Jiehui},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=WJ}{%
+         family={Wang},
+         familyi={W\bibinitperiod},
+         given={Jianmin},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=LM}{%
+         family={Long},
+         familyi={L\bibinitperiod},
+         given={Mingsheng},
+         giveni={M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{WH+1}
+    \strng{fullhash}{WHXJWJLM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{pages}{22419\bibrangedash 22430}
+    \field{title}{Autoformer: Decomposition transformers with auto-correlation
+  for long-term series forecasting}
+    \field{volume}{34}
+    \field{journaltitle}{Advances in Neural Information Processing Systems
+  (NeurIPS)}
+    \field{year}{2021}
+  \endentry
+
+  \entry{quayle1980heating}{article}{}
+    \name{author}{2}{}{%
+      {{hash=QRG}{%
+         family={Quayle},
+         familyi={Q\bibinitperiod},
+         given={Robert\bibnamedelima G.},
+         giveni={R\bibinitperiod\bibinitdelim G\bibinitperiod},
+      }}%
+      {{hash=DHF}{%
+         family={Diaz},
+         familyi={D\bibinitperiod},
+         given={Henry\bibnamedelima F.},
+         giveni={H\bibinitperiod\bibinitdelim F\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{QRG+1}
+    \strng{fullhash}{QRGDHF1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{3}
+    \field{pages}{249\bibrangedash 253}
+    \field{title}{Heating and Cooling Degree Day Demands}
+    \field{volume}{108}
+    \field{journaltitle}{Monthly Weather Review}
+    \field{year}{1980}
+  \endentry
+
+  \entry{ashrae2021fundamentals}{book}{}
+    \name{author}{1}{}{%
+      {{hash=A}{%
+         family={ASHRAE},
+         familyi={A\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{2}{%
+      {American Society of Heating, Refrigerating}%
+      {Air-Conditioning Engineers}%
+    }
+    \strng{namehash}{A1}
+    \strng{fullhash}{A1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{{ASHRAE Handbook -- Fundamentals}}
+    \list{location}{1}{%
+      {Atlanta, GA}%
+    }
+    \field{year}{2021}
+  \endentry
+
+  \entry{hyndman2018forecasting}{book}{}
+    \name{author}{2}{}{%
+      {{hash=HRJ}{%
+         family={Hyndman},
+         familyi={H\bibinitperiod},
+         given={Rob\bibnamedelima J.},
+         giveni={R\bibinitperiod\bibinitdelim J\bibinitperiod},
+      }}%
+      {{hash=AG}{%
+         family={Athanasopoulos},
+         familyi={A\bibinitperiod},
+         given={George},
+         giveni={G\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {OTexts}%
+    }
+    \strng{namehash}{HRJ+1}
+    \strng{fullhash}{HRJAG1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{edition}{2nd}
+    \field{title}{Forecasting: Principles and Practice}
+    \list{location}{1}{%
+      {Melbourne, Australia}%
+    }
+    \field{year}{2018}
+  \endentry
+
+  \entry{chen2016xgboost}{inproceedings}{}
+    \name{author}{2}{}{%
+      {{hash=CT}{%
+         family={Chen},
+         familyi={C\bibinitperiod},
+         given={Tianqi},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=GC}{%
+         family={Guestrin},
+         familyi={G\bibinitperiod},
+         given={Carlos},
+         giveni={C\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{CT+1}
+    \strng{fullhash}{CTGC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Proceedings of the 22nd ACM SIGKDD International
+  Conference on Knowledge Discovery and Data Mining}
+    \field{pages}{785\bibrangedash 794}
+    \field{title}{{XGBoost}: A Scalable Tree Boosting System}
+    \field{year}{2016}
+  \endentry
+
+  \entry{ke2017lightgbm}{article}{}
+    \name{author}{8}{}{%
+      {{hash=KG}{%
+         family={Ke},
+         familyi={K\bibinitperiod},
+         given={Guolin},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=MQ}{%
+         family={Meng},
+         familyi={M\bibinitperiod},
+         given={Qi},
+         giveni={Q\bibinitperiod},
+      }}%
+      {{hash=FT}{%
+         family={Finley},
+         familyi={F\bibinitperiod},
+         given={Thomas},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=WT}{%
+         family={Wang},
+         familyi={W\bibinitperiod},
+         given={Taifeng},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=CW}{%
+         family={Chen},
+         familyi={C\bibinitperiod},
+         given={Wei},
+         giveni={W\bibinitperiod},
+      }}%
+      {{hash=MW}{%
+         family={Ma},
+         familyi={M\bibinitperiod},
+         given={Weidong},
+         giveni={W\bibinitperiod},
+      }}%
+      {{hash=YQ}{%
+         family={Ye},
+         familyi={Y\bibinitperiod},
+         given={Qiwei},
+         giveni={Q\bibinitperiod},
+      }}%
+      {{hash=LTY}{%
+         family={Liu},
+         familyi={L\bibinitperiod},
+         given={Tie-Yan},
+         giveni={T\bibinithyphendelim Y\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{KG+1}
+    \strng{fullhash}{KGMQFTWTCWMWYQLTY1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{pages}{3146\bibrangedash 3154}
+    \field{title}{{LightGBM}: A Highly Efficient Gradient Boosting Decision
+  Tree}
+    \field{volume}{30}
+    \field{journaltitle}{Advances in Neural Information Processing Systems
+  (NeurIPS)}
+    \field{year}{2017}
+  \endentry
+
+  \entry{makridakis2018statistical}{article}{}
+    \name{author}{3}{}{%
+      {{hash=MS}{%
+         family={Makridakis},
+         familyi={M\bibinitperiod},
+         given={Spyros},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=SE}{%
+         family={Spiliotis},
+         familyi={S\bibinitperiod},
+         given={Evangelos},
+         giveni={E\bibinitperiod},
+      }}%
+      {{hash=AV}{%
+         family={Assimakopoulos},
+         familyi={A\bibinitperiod},
+         given={Vassilios},
+         giveni={V\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Public Library of Science}%
+    }
+    \strng{namehash}{MS+1}
+    \strng{fullhash}{MSSEAV1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{3}
+    \field{pages}{e0194889}
+    \field{title}{Statistical and machine learning forecasting methods:
+  Concerns and ways forward}
+    \field{volume}{13}
+    \field{journaltitle}{PloS ONE}
+    \field{year}{2018}
+  \endentry
+
+  \entry{lai2018modeling}{inproceedings}{}
+    \name{author}{4}{}{%
+      {{hash=LG}{%
+         family={Lai},
+         familyi={L\bibinitperiod},
+         given={Guokun},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=CWC}{%
+         family={Chang},
+         familyi={C\bibinitperiod},
+         given={Wei-Cheng},
+         giveni={W\bibinithyphendelim C\bibinitperiod},
+      }}%
+      {{hash=YY}{%
+         family={Yang},
+         familyi={Y\bibinitperiod},
+         given={Yiming},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=LH}{%
+         family={Liu},
+         familyi={L\bibinitperiod},
+         given={Hanxiao},
+         giveni={H\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LG+1}
+    \strng{fullhash}{LGCWCYYLH1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Proceedings of the 41st International ACM SIGIR
+  Conference on Research \& Development in Information Retrieval}
+    \field{pages}{95\bibrangedash 104}
+    \field{title}{Modeling long-and short-term temporal patterns with deep
+  neural networks}
+    \field{year}{2018}
+  \endentry
+
+  \entry{cleveland1990stl}{article}{}
+    \name{author}{4}{}{%
+      {{hash=CRB}{%
+         family={Cleveland},
+         familyi={C\bibinitperiod},
+         given={Robert\bibnamedelima B.},
+         giveni={R\bibinitperiod\bibinitdelim B\bibinitperiod},
+      }}%
+      {{hash=CWS}{%
+         family={Cleveland},
+         familyi={C\bibinitperiod},
+         given={William\bibnamedelima S.},
+         giveni={W\bibinitperiod\bibinitdelim S\bibinitperiod},
+      }}%
+      {{hash=MJE}{%
+         family={McRae},
+         familyi={M\bibinitperiod},
+         given={Jean\bibnamedelima E.},
+         giveni={J\bibinitperiod\bibinitdelim E\bibinitperiod},
+      }}%
+      {{hash=TI}{%
+         family={Terpenning},
+         familyi={T\bibinitperiod},
+         given={Irma},
+         giveni={I\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{CRB+1}
+    \strng{fullhash}{CRBCWSMJETI1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{1}
+    \field{pages}{3\bibrangedash 73}
+    \field{title}{{STL}: A Seasonal-Trend Decomposition Procedure Based on
+  Loess}
+    \field{volume}{6}
+    \field{journaltitle}{Journal of Official Statistics}
+    \field{year}{1990}
+  \endentry
+
+  \entry{zou2005regularization}{article}{}
+    \name{author}{2}{}{%
+      {{hash=ZH}{%
+         family={Zou},
+         familyi={Z\bibinitperiod},
+         given={Hui},
+         giveni={H\bibinitperiod},
+      }}%
+      {{hash=HT}{%
+         family={Hastie},
+         familyi={H\bibinitperiod},
+         given={Trevor},
+         giveni={T\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{ZH+2}
+    \strng{fullhash}{ZHHT1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{2}
+    \field{pages}{301\bibrangedash 320}
+    \field{title}{Regularization and Variable Selection via the Elastic Net}
+    \field{volume}{67}
+    \field{journaltitle}{Journal of the Royal Statistical Society: Series B
+  (Statistical Methodology)}
+    \field{year}{2005}
+  \endentry
+
+  \entry{lundberg2017shap}{article}{}
+    \name{author}{2}{}{%
+      {{hash=LSM}{%
+         family={Lundberg},
+         familyi={L\bibinitperiod},
+         given={Scott\bibnamedelima M.},
+         giveni={S\bibinitperiod\bibinitdelim M\bibinitperiod},
+      }}%
+      {{hash=LSI}{%
+         family={Lee},
+         familyi={L\bibinitperiod},
+         given={Su-In},
+         giveni={S\bibinithyphendelim I\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LSM+1}
+    \strng{fullhash}{LSMLSI1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{pages}{4765\bibrangedash 4774}
+    \field{title}{A Unified Approach to Interpreting Model Predictions}
+    \field{volume}{30}
+    \field{journaltitle}{Advances in Neural Information Processing Systems
+  (NeurIPS)}
+    \field{year}{2017}
+  \endentry
+
+  \entry{wolpert1992stacked}{article}{}
+    \name{author}{1}{}{%
+      {{hash=WDH}{%
+         family={Wolpert},
+         familyi={W\bibinitperiod},
+         given={David\bibnamedelima H.},
+         giveni={D\bibinitperiod\bibinitdelim H\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{WDH1}
+    \strng{fullhash}{WDH1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{2}
+    \field{pages}{241\bibrangedash 259}
+    \field{title}{Stacked Generalization}
+    \field{volume}{5}
+    \field{journaltitle}{Neural Networks}
+    \field{year}{1992}
+  \endentry
+
+  \entry{akiba2019optuna}{inproceedings}{}
+    \name{author}{5}{}{%
+      {{hash=AT}{%
+         family={Akiba},
+         familyi={A\bibinitperiod},
+         given={Takuya},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=SS}{%
+         family={Sano},
+         familyi={S\bibinitperiod},
+         given={Shotaro},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=YT}{%
+         family={Yanase},
+         familyi={Y\bibinitperiod},
+         given={Toshihiko},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=OT}{%
+         family={Ohta},
+         familyi={O\bibinitperiod},
+         given={Takeru},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=KM}{%
+         family={Koyama},
+         familyi={K\bibinitperiod},
+         given={Masanori},
+         giveni={M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{AT+1}
+    \strng{fullhash}{ATSSYTOTKM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Proceedings of the 25th ACM SIGKDD International
+  Conference on Knowledge Discovery \& Data Mining}
+    \field{pages}{2623\bibrangedash 2631}
+    \field{title}{Optuna: A next-generation hyperparameter optimization
+  framework}
+    \field{year}{2019}
+  \endentry
+
+  \entry{hong2014global}{article}{}
+    \name{author}{3}{}{%
+      {{hash=HT}{%
+         family={Hong},
+         familyi={H\bibinitperiod},
+         given={Tao},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=PP}{%
+         family={Pinson},
+         familyi={P\bibinitperiod},
+         given={Pierre},
+         giveni={P\bibinitperiod},
+      }}%
+      {{hash=FS}{%
+         family={Fan},
+         familyi={F\bibinitperiod},
+         given={Shu},
+         giveni={S\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{HT+1}
+    \strng{fullhash}{HTPPFS1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{2}
+    \field{pages}{357\bibrangedash 363}
+    \field{title}{Global Energy Forecasting Competition 2012}
+    \field{volume}{30}
+    \field{journaltitle}{International Journal of Forecasting}
+    \field{year}{2014}
+  \endentry
+
+  \entry{vovk2005algorithmic}{book}{}
+    \name{author}{3}{}{%
+      {{hash=VV}{%
+         family={Vovk},
+         familyi={V\bibinitperiod},
+         given={Vladimir},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=GA}{%
+         family={Gammerman},
+         familyi={G\bibinitperiod},
+         given={Alex},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=SG}{%
+         family={Shafer},
+         familyi={S\bibinitperiod},
+         given={Glenn},
+         giveni={G\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Springer Science \& Business Media}%
+    }
+    \strng{namehash}{VV+1}
+    \strng{fullhash}{VVGASG1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Algorithmic Learning in a Random World}
+    \field{year}{2005}
+  \endentry
+
+  \entry{iise2025pge}{article}{}
+    \name{author}{3}{}{%
+      {{hash=RM}{%
+         family={Roy},
+         familyi={R\bibinitperiod},
+         given={Millend},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=PV}{%
+         family={Pyltsov},
+         familyi={P\bibinitperiod},
+         given={Vladimir},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=HY}{%
+         family={Hu},
+         familyi={H\bibinitperiod},
+         given={Yinbo},
+         giveni={Y\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{RM+1}
+    \strng{fullhash}{RMPVHY1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{{IISE PG\&E} Energy Analytics Challenge 2025: Hourly-Binned
+  Regression Models Beat Transformers in Load Forecasting}
+    \field{journaltitle}{arXiv preprint arXiv:2505.11390}
+    \field{year}{2025}
+  \endentry
+
+  \entry{lundberg2017unified}{article}{}
+    \name{author}{2}{}{%
+      {{hash=LSM}{%
+         family={Lundberg},
+         familyi={L\bibinitperiod},
+         given={Scott\bibnamedelima M.},
+         giveni={S\bibinitperiod\bibinitdelim M\bibinitperiod},
+      }}%
+      {{hash=LSI}{%
+         family={Lee},
+         familyi={L\bibinitperiod},
+         given={Su-In},
+         giveni={S\bibinithyphendelim I\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LSM+1}
+    \strng{fullhash}{LSMLSI1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{pages}{4765\bibrangedash 4774}
+    \field{title}{A Unified Approach to Interpreting Model Predictions}
+    \field{volume}{30}
+    \field{journaltitle}{Advances in Neural Information Processing Systems
+  (NeurIPS)}
+    \field{year}{2017}
+  \endentry
+\enddatalist
+\endinput
