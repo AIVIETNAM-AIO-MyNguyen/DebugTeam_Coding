@@ -1,7 +1,7 @@
-# Configuration: RepMLP on CIFAR-100
+# Configuration: MLP-Mixer on CIFAR-100
 
 experiment:
-  tag: "cifar100_rep_mlp"
+  tag: "cifar100_res_mlp"
   base_dir: "runs"
 
 training:
@@ -41,10 +41,10 @@ augmentation:
   cutmix_alpha: 1.0
 
 model:
-  name: "repmlp_self_implementation"
+  name: "res_mlp_self_implementation"
   image_size: 32
-  patch_size: 2
+  patch_size: 4
+  num_features: 128
+  expansion_factor: 2
+  num_layers: 8
   num_classes: 100
-  channels: [64, 128, 256]
-  num_blocks: [2, 4, 2]
-  sharesets_nums: [1, 4, 16]
