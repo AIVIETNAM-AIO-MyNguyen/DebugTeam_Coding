@@ -41,7 +41,7 @@ augmentation:
   cutmix_alpha: 1.0
 
 model:
-  name: "res_mlp_self_implementation"
+  name: "res_mlp_v2"
   image_size: 32
   patch_size: 4
   num_features: 128

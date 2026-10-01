@@ -410,8 +410,8 @@ class ResMLPBlock(nn.Module):
 # ResMLP
 # ============================================================
 
-@register_model("resmlp_self_implmentation")
-class ResMLPSelfImplementation(BaseClassifier):
+@register_model("res_mlp_v2")
+class ResMLPv2(BaseClassifier):
     """
     ResMLP image classifier.
 
