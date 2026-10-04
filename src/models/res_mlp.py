@@ -28,8 +28,11 @@ class TokenMixLayer(nn.Module):
 
         return x + residual
 
+from src.models.layers import DropPath
+
+
 class ChannelMixLayer(nn.Module):
-    def __init__(self, features, expansion_factor):
+    def __init__(self, features, expansion_factor, drop_path: float = 0.0):
         super().__init__()
 
         num_hidden = features * expansion_factor
@@ -37,6 +40,7 @@ class ChannelMixLayer(nn.Module):
         self.fc1 = nn.Linear(features, num_hidden)
         self.fc2 = nn.Linear(num_hidden, features)
         self.aff2 = AffineTransform(features=features)
+        self.drop_path = DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
 
     def forward(self, x):
         residual = x
@@ -46,7 +50,7 @@ class ChannelMixLayer(nn.Module):
         x = self.fc2(x)
         x = self.aff2(x)
 
-        return x + residual
+        return residual + self.drop_path(x)
 
 
 class ResMLPLayer(nn.Module):

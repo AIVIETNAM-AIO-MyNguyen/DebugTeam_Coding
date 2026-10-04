@@ -126,3 +126,34 @@ def test_load_and_build_from_yaml_configs():
     assert m_tiny.image_size == 64
     assert m_tiny.num_classes == 200
     assert m_tiny.num_stages == 3
+    assert m_tiny.drop_path_rate == 0.1
+
+
+def test_pyramid_res_mlp_drop_path_and_dropout():
+    model = PyramidResMLP(
+        image_size=32,
+        patch_size=2,
+        num_classes=10,
+        channels=(32, 64, 128),
+        num_blocks=(2, 2, 2),
+        drop_path_rate=0.2,
+        dropout=0.1,
+    )
+    # Forward in train mode with backward pass
+    model.train()
+    x = torch.randn(4, 3, 32, 32, requires_grad=True)
+    out = model(x)
+    assert out.shape == (4, 10)
+    loss = out.sum()
+    loss.backward()
+    assert x.grad is not None
+
+    # In eval mode, DropPath and Dropout are deactivated, locality injection is exact
+    model.eval()
+    with torch.no_grad():
+        out_train_mode = model(x)
+    model.locality_injection()
+    with torch.no_grad():
+        out_fused = model(x)
+    diff = (out_train_mode - out_fused).abs().max().item()
+    assert diff < 1e-4, f"Locality injection mismatch with drop_path: max diff = {diff}"

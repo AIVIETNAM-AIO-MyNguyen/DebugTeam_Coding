@@ -23,12 +23,16 @@ from src.models.base import BaseClassifier, register_model
 from src.models.res_mlp import AffineTransform, ChannelMixLayer, check_sizes
 
 
+from src.models.layers import DropPath
+
+
 class RepTokenMixLayer(nn.Module):
     """
     Re-parameterizable Token Mixing Layer.
 
     Combines global Linear spatial mixing with local Depthwise Convolution branches.
     At deploy time, all branches are merged into a single linear operator.
+    Supports DropPath (Stochastic Depth) for regularization.
     """
 
     def __init__(
@@ -38,6 +42,7 @@ class RepTokenMixLayer(nn.Module):
         image_size: int,
         patch_size: int,
         reparam_conv_k: Sequence[int] = (1, 3),
+        drop_path: float = 0.0,
         deploy: bool = False,
     ):
         super().__init__()
@@ -48,6 +53,7 @@ class RepTokenMixLayer(nn.Module):
         assert self.Hp * self.Wp == patches, f"Patches ({patches}) must equal Hp*Wp ({self.Hp}*{self.Wp})"
         self.deploy = deploy
         self.reparam_conv_k = reparam_conv_k
+        self.drop_path = DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
 
         self.aff1 = AffineTransform(features=features)
         self.aff2 = AffineTransform(features=features)
@@ -88,7 +94,7 @@ class RepTokenMixLayer(nn.Module):
             x_spatial = global_out + conv_out
 
         x = self.aff2(x_spatial.transpose(1, 2))  # (B, N, C)
-        return x + residual
+        return residual + self.drop_path(x)
 
     def local_inject(self):
         """Merges all local conv branches into the linear spatial operator."""

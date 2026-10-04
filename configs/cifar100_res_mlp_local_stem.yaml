@@ -44,8 +44,8 @@ model:
   name: "res_mlp_local_stem"
   image_size: 32
   patch_size: 4
-  num_features: 128
-  expansion_factor: 2
+  num_features: 192
+  expansion_factor: 4
   num_layers: 8
   num_stem_blocks: 2
   num_classes: 100

@@ -85,7 +85,8 @@ class ConvDownsample(nn.Module):
 
 class PyramidResMLPBlock(nn.Module):
     """
-    A single block within a Pyramid stage combining RepTokenMixLayer and ChannelMixLayer.
+    A single block within a Pyramid stage combining RepTokenMixLayer and ChannelMixLayer,
+    with DropPath (Stochastic Depth) regularization.
     """
 
     def __init__(
@@ -96,6 +97,7 @@ class PyramidResMLPBlock(nn.Module):
         grid_w: int,
         expansion_factor: int = 4,
         reparam_conv_k: Sequence[int] = (1, 3),
+        drop_path: float = 0.0,
         deploy: bool = False,
     ):
         super().__init__()
@@ -106,9 +108,14 @@ class PyramidResMLPBlock(nn.Module):
             image_size=grid_h * 2,
             patch_size=2,
             reparam_conv_k=reparam_conv_k,
+            drop_path=drop_path,
             deploy=deploy,
         )
-        self.channel_mix = ChannelMixLayer(features, expansion_factor)
+        self.channel_mix = ChannelMixLayer(
+            features=features,
+            expansion_factor=expansion_factor,
+            drop_path=drop_path,
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.token_mix(x)
@@ -121,7 +128,7 @@ class PyramidResMLPBlock(nn.Module):
 @register_model("res_mlp_pyramid")
 class PyramidResMLP(BaseClassifier):
     """
-    Pyramid-ResMLP: Hierarchical Vision Model with Multi-Scale Stages & RepTokenMix.
+    Pyramid-ResMLP: Hierarchical Vision Model with Multi-Scale Stages, RepTokenMix & DropPath.
 
     Args:
         image_size: Input image resolution (e.g. 32 for CIFAR, 64 for Tiny-ImageNet).
@@ -132,6 +139,8 @@ class PyramidResMLP(BaseClassifier):
         num_blocks: Number of blocks in each stage (default: (2, 2, 4)).
         expansion_factor: MLP expansion factor in ChannelMix (default: 4).
         reparam_conv_k: Kernel sizes for parallel local DW convs in RepTokenMix (default: (1, 3)).
+        drop_path_rate: Stochastic depth rate (default: 0.0). Linearly increases across blocks.
+        dropout: Dropout rate before classifier head (default: 0.0).
         deploy: If True, builds directly in fused deploy mode.
     """
 
@@ -145,16 +154,23 @@ class PyramidResMLP(BaseClassifier):
         num_blocks: Sequence[int] = (2, 2, 4),
         expansion_factor: int = 4,
         reparam_conv_k: Sequence[int] = (1, 3),
+        drop_path_rate: float = 0.0,
+        dropout: float = 0.0,
         deploy: bool = False,
         **kwargs,
     ):
         super().__init__()
         assert len(channels) == len(num_blocks), "Length of channels and num_blocks must match."
 
+        # Support alias drop_path in kwargs
+        if "drop_path" in kwargs and drop_path_rate == 0.0:
+            drop_path_rate = float(kwargs["drop_path"])
+
         self.image_size = image_size
         self.patch_size = patch_size
         self.num_classes = num_classes
         self.num_stages = len(channels)
+        self.drop_path_rate = drop_path_rate
         self.deploy = deploy
 
         # 1. Overlapping Patch Embedding (Stem)
@@ -171,6 +187,15 @@ class PyramidResMLP(BaseClassifier):
         self.downsamples = nn.ModuleList()
         self.stage_resolutions = []
 
+        # Stochastic depth decay rule (linear schedule across all blocks)
+        total_blocks = sum(num_blocks)
+        dpr = (
+            [x.item() for x in torch.linspace(0, drop_path_rate, total_blocks)]
+            if drop_path_rate > 0.0
+            else [0.0] * total_blocks
+        )
+
+        cur_block_idx = 0
         # 2. Build Pyramid Stages
         for i in range(self.num_stages):
             C = channels[i]
@@ -185,10 +210,12 @@ class PyramidResMLP(BaseClassifier):
                     grid_w=curr_W,
                     expansion_factor=expansion_factor,
                     reparam_conv_k=reparam_conv_k,
+                    drop_path=dpr[cur_block_idx + j],
                     deploy=deploy,
                 )
-                for _ in range(num_blocks[i])
+                for j in range(num_blocks[i])
             ])
+            cur_block_idx += num_blocks[i]
             self.stages.append(stage_blocks)
 
             # Downsampling transition between stages
@@ -197,8 +224,9 @@ class PyramidResMLP(BaseClassifier):
                 curr_H = curr_H // 2
                 curr_W = curr_W // 2
 
-        # 3. Final Norm and Classifier Head
+        # 3. Final Norm, Dropout, and Classifier Head
         self.norm = AffineTransform(channels[-1])
+        self.dropout = nn.Dropout(dropout) if dropout > 0.0 else nn.Identity()
         self.head = nn.Linear(channels[-1], num_classes)
 
     def forward_features(self, x: torch.Tensor) -> torch.Tensor:
@@ -219,6 +247,7 @@ class PyramidResMLP(BaseClassifier):
         features = self.forward_features(x)
         # Global Average Pooling over tokens
         embedding = torch.mean(features, dim=1)
+        embedding = self.dropout(embedding)
         logits = self.head(embedding)
         return logits
 

@@ -15,17 +15,20 @@ import torch.nn as nn
 from src.models.base import BaseClassifier, register_model
 from src.models.res_mlp import AffineTransform, ChannelMixLayer
 from src.models.pyramid_res_mlp import OverlappingPatchEmbed, ConvDownsample
+from src.models.layers import DropPath
 
 
 class PureTokenMixLayer(nn.Module):
     """
     Pure ResMLP TokenMixLayer: Global Linear(N, N) spatial mixing without any parallel conv branches.
+    Supports DropPath for regularization.
     """
 
-    def __init__(self, features: int, patches: int):
+    def __init__(self, features: int, patches: int, drop_path: float = 0.0):
         super().__init__()
         self.features = features
         self.patches = patches
+        self.drop_path = DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
         self.aff1 = AffineTransform(features=features)
         self.fc1 = nn.Linear(patches, patches)
         self.aff2 = AffineTransform(features=features)
@@ -37,12 +40,12 @@ class PureTokenMixLayer(nn.Module):
         # Spatial mixing: transpose to (B, C, N), apply Linear(N, N), transpose back
         x = self.fc1(x.transpose(1, 2)).transpose(1, 2)
         x = self.aff2(x)
-        return x + residual
+        return residual + self.drop_path(x)
 
 
 class PurePyramidResMLPBlock(nn.Module):
     """
-    Block inside Pure Pyramid Stage: PureTokenMixLayer + ChannelMixLayer.
+    Block inside Pure Pyramid Stage: PureTokenMixLayer + ChannelMixLayer with DropPath.
     """
 
     def __init__(
@@ -50,10 +53,11 @@ class PurePyramidResMLPBlock(nn.Module):
         features: int,
         patches: int,
         expansion_factor: int = 4,
+        drop_path: float = 0.0,
     ):
         super().__init__()
-        self.token_mix = PureTokenMixLayer(features=features, patches=patches)
-        self.channel_mix = ChannelMixLayer(features, expansion_factor)
+        self.token_mix = PureTokenMixLayer(features=features, patches=patches, drop_path=drop_path)
+        self.channel_mix = ChannelMixLayer(features, expansion_factor, drop_path=drop_path)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.token_mix(x)
@@ -87,15 +91,22 @@ class PyramidResMLPPure(BaseClassifier):
         channels: Sequence[int] = (64, 128, 256),
         num_blocks: Sequence[int] = (2, 2, 4),
         expansion_factor: int = 4,
+        drop_path_rate: float = 0.0,
+        dropout: float = 0.0,
         **kwargs,
     ):
         super().__init__()
         assert len(channels) == len(num_blocks), "Length of channels and num_blocks must match."
 
+        # Support alias drop_path in kwargs
+        if "drop_path" in kwargs and drop_path_rate == 0.0:
+            drop_path_rate = float(kwargs["drop_path"])
+
         self.image_size = image_size
         self.patch_size = patch_size
         self.num_classes = num_classes
         self.num_stages = len(channels)
+        self.drop_path_rate = drop_path_rate
         self.deploy = True  # Already purely linear, no conv branches to fuse
 
         # 1. Overlapping Patch Embedding (Stem)
@@ -112,6 +123,15 @@ class PyramidResMLPPure(BaseClassifier):
         self.downsamples = nn.ModuleList()
         self.stage_resolutions = []
 
+        # Stochastic depth decay rule (linear schedule across all blocks)
+        total_blocks = sum(num_blocks)
+        dpr = (
+            [x.item() for x in torch.linspace(0, drop_path_rate, total_blocks)]
+            if drop_path_rate > 0.0
+            else [0.0] * total_blocks
+        )
+
+        cur_block_idx = 0
         # 2. Build Pure Pyramid Stages
         for i in range(self.num_stages):
             C = channels[i]
@@ -123,9 +143,11 @@ class PyramidResMLPPure(BaseClassifier):
                     features=C,
                     patches=N,
                     expansion_factor=expansion_factor,
+                    drop_path=dpr[cur_block_idx + j],
                 )
-                for _ in range(num_blocks[i])
+                for j in range(num_blocks[i])
             ])
+            cur_block_idx += num_blocks[i]
             self.stages.append(stage_blocks)
 
             if i < self.num_stages - 1:
@@ -133,8 +155,9 @@ class PyramidResMLPPure(BaseClassifier):
                 curr_H = curr_H // 2
                 curr_W = curr_W // 2
 
-        # 3. Final Norm and Classifier Head
+        # 3. Final Norm, Dropout, and Classifier Head
         self.norm = AffineTransform(channels[-1])
+        self.dropout = nn.Dropout(dropout) if dropout > 0.0 else nn.Identity()
         self.head = nn.Linear(channels[-1], num_classes)
 
     def forward_features(self, x: torch.Tensor) -> torch.Tensor:
@@ -154,6 +177,7 @@ class PyramidResMLPPure(BaseClassifier):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         features = self.forward_features(x)
         embedding = torch.mean(features, dim=1)
+        embedding = self.dropout(embedding)
         logits = self.head(embedding)
         return logits
 

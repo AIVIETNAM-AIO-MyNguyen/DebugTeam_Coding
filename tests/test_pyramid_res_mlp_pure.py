@@ -105,3 +105,32 @@ def test_load_and_build_from_yaml_configs():
     assert isinstance(m_tiny, PyramidResMLPPure)
     assert m_tiny.image_size == 64
     assert m_tiny.num_classes == 200
+    assert m_tiny.drop_path_rate == 0.1
+
+
+def test_pyramid_res_mlp_pure_drop_path_and_dropout():
+    model = PyramidResMLPPure(
+        image_size=32,
+        patch_size=2,
+        num_classes=10,
+        channels=(32, 64, 128),
+        num_blocks=(2, 2, 2),
+        drop_path_rate=0.2,
+        dropout=0.1,
+    )
+    # Forward in train mode with backward pass
+    model.train()
+    x = torch.randn(4, 3, 32, 32, requires_grad=True)
+    out = model(x)
+    assert out.shape == (4, 10)
+    loss = out.sum()
+    loss.backward()
+    assert x.grad is not None
+
+    # In eval mode, outputs are deterministic
+    model.eval()
+    with torch.no_grad():
+        out1 = model(x)
+        out2 = model(x)
+    diff = (out1 - out2).abs().max().item()
+    assert diff == 0.0
