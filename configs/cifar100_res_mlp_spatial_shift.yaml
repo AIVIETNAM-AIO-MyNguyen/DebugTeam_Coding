@@ -41,7 +41,7 @@ augmentation:
   cutmix_alpha: 1.0
 
 model:
-  name: "res_mlp_spatial_shift"
+  name: "shift_resmlp"
   image_size: 32
   patch_size: 4
   num_features: 128
