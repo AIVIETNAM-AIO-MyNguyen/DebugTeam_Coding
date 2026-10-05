@@ -13,6 +13,7 @@ import src.models.mlp_mixer  # noqa: F401
 import src.models.res_mlp
 import src.models.rep_mlp
 import src.models.res_mlp_v2
+import src.models.res_mlp_spatial_shift
 
 
 def build_model(cfg) -> BaseClassifier:
