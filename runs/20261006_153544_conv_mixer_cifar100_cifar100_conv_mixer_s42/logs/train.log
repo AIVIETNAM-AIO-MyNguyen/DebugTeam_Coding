@@ -1,0 +1,15 @@
+[2026-10-06 15:35:44] [INFO] Experiment initialized: 20261006_153544_conv_mixer_cifar100_cifar100_conv_mixer_s42
+[2026-10-06 15:35:44] [INFO] Distributed training: False (world_size=1)
+[2026-10-06 15:35:44] [INFO] Artifacts will be stored at: runs/20261006_153544_conv_mixer_cifar100_cifar100_conv_mixer_s42
+[2026-10-06 15:35:44] [INFO] Seed set to 42 (deterministic=True)
+[2026-10-06 15:35:44] [INFO] Building data pipeline for dataset: cifar100
+[2026-10-06 15:35:45] [INFO] Train batches per GPU: 351 | Val batches: 40
+[2026-10-06 15:35:45] [INFO] Building model: conv_mixer
+[2026-10-06 15:35:45] [INFO] Model conv_mixer constructed. Parameters: 626,532 trainable (626,532 total)
+[2026-10-06 15:35:46] [INFO] Starting training on device: cuda
+[2026-10-06 15:35:46] [INFO] Total epochs: 100, Initial LR: 0.001
+[2026-10-06 15:36:41] [INFO] Epoch [001/100] Train Loss: 4.3315 | Train Acc: 7.18% | Val Loss: 3.4875 | Val Acc: 17.92% | Best Val: 17.92%
+[2026-10-06 15:37:35] [INFO] Epoch [002/100] Train Loss: 4.0966 | Train Acc: 12.24% | Val Loss: 3.0915 | Val Acc: 25.68% | Best Val: 25.68%
+[2026-10-06 15:38:28] [INFO] Epoch [003/100] Train Loss: 4.0030 | Train Acc: 15.15% | Val Loss: 2.9307 | Val Acc: 28.28% | Best Val: 28.28%
+[2026-10-06 15:39:22] [INFO] Epoch [004/100] Train Loss: 3.8927 | Train Acc: 17.96% | Val Loss: 2.7134 | Val Acc: 32.60% | Best Val: 32.60%
+[2026-10-06 15:40:15] [INFO] Epoch [005/100] Train Loss: 3.8302 | Train Acc: 20.18% | Val Loss: 2.5899 | Val Acc: 35.36% | Best Val: 35.36%
