@@ -1,4 +1,4 @@
-# Configuration: MLP-Mixer on CIFAR-100
+# Configuration: ResMLP-Spatial-Shift on CIFAR-100
 
 experiment:
   tag: "cifar100_res_mlp_spatial_shift"
