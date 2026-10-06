@@ -1,0 +1,51 @@
+# Configuration: ConvMixer on CIFAR-100
+# Reference: Trockman & Kolter (ICLR 2022 / TMLR 2023) - "Patches Are All You Need?"
+
+experiment:
+  tag: "cifar100_conv_mixer"
+  base_dir: "runs"
+
+training:
+  seed: 42
+  deterministic: true
+  epochs: 100
+  lr: 0.001
+  use_amp: true
+  grad_clip: 1.0
+  label_smoothing: 0.1
+
+optimizer:
+  name: "adamw"
+  weight_decay: 0.05
+
+scheduler:
+  name: "cosine"
+  min_lr: 1e-6
+
+data:
+  dataset: "cifar100"
+  data_dir: "data/cifar100"
+  batch_size: 128
+  num_workers: 4
+  pin_memory: true
+  image_size: 32
+  val_split: 0.1
+  download: true
+
+augmentation:
+  auto_augment: false
+  rand_augment: true
+  random_erasing: 0.1
+  color_jitter: 0.1
+  use_mixup: true
+  mixup_alpha: 0.8
+  cutmix_alpha: 1.0
+
+model:
+  name: "conv_mixer"
+  image_size: 32
+  patch_size: 2
+  dim: 512
+  depth: 12
+  kernel_size: 7
+  num_classes: 100
