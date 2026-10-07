@@ -1,0 +1,36 @@
+\section{Challenges, Consultation with TA, and Week 04 Roadmap}
+\label{section:roadmap}
+
+\subsection{Technical Challenges Encountered in Week 03}
+During our Week 03 exploration, our team identified several technical hurdles:
+\begin{itemize}
+    \item \textbf{a. Channel capacity inflation in single-stage models:} While Shift-ResMLP successfully achieved 72.92\% accuracy with parameter-free spatial mixing, its isotropic single-scale nature required a large channel width ($D = 384$) and 12 blocks, accumulating 14.26 million parameters. In contrast, multi-stage pyramids achieve comparable performance with 1.79 million parameters, confirming that isotropic backbones suffer from intrinsic capacity inefficiency.
+    \item \textbf{b. Regularization requirements at higher resolutions:} On Tiny-ImageNet ($64*64$), our base pyramid model exhibited overfitting due to increased spatial token counts. Introducing stochastic depth (DropPath = 0.05) and heavier weight decay was essential to unlock strong generalization (+5.08\% improvement to 62.93\%), indicating that regularization becomes increasingly critical as resolution scales up.
+    \item \textbf{c. Disparate peer training pipelines:} Because team members worked on diverse compute environments (local DDP clusters, single CUDA GPUs, and Kaggle T4 accelerators), differing batch sizes, learning rates, and augmentation suites made cross-model comparison nuanced. A primary goal for Week 04 is unifying all top-performing candidates under an identical benchmarking harness.
+\end{itemize}
+
+\subsection{Questions for Teaching Assistant (TA) Consultation}
+We have prepared two technical questions for our assigned Teaching Assistant:
+
+\begin{quote}
+\textbf{Q1: Synthesizing Hierarchical Pyramids with Parameter-Free Spatial Shifts} \\
+Our Week 03 benchmarks revealed two major insights:
+\begin{enumerate}
+    \item \textit{Pyramid-ResMLP} reduces model size to 1.79M deployable parameters by progressively contracting token dimensions across stages ($16*16 \rightarrow 8*8 \rightarrow 4*4$).
+    \item \textit{Shift-ResMLP} achieves 72.92\% validation accuracy with strictly zero learnable parameters in the spatial mixing branch via 4-direction coordinate channel shifts.
+\end{enumerate}
+Does the TA recommend replacing the $\text{Linear}(N_i, N_i)$ matrices in each stage of our pyramid architecture with parameter-free 4-direction coordinate shifts (yielding a hybrid \textit{Pyramid-Shift-ResMLP})? Would this architecture retain sufficient representational capacity on Tiny-ImageNet ($64*64$) while achieving extreme parameter efficiency?
+\end{quote}
+
+\begin{quote}
+\textbf{Q2: Depth vs. Width Allocation when Scaling to Higher Resolutions} \\
+When moving from CIFAR-100 ($32*32$) to Tiny-ImageNet ($64*64$), expanding channel widths to $[112, 224, 448]$ alongside DropPath regularization boosted accuracy by $+5.08\%$ (from 57.85\% to 62.93\%). When scaling further toward ImageNet-1K resolution ($224*224$), should our team prioritize expanding stage depths (e.g., adopting a $[2, 2, 6, 2]$ or $[2, 4, 14, 2]$ block allocation similar to ConvNeXt and PoolFormer) or expanding channel widths while keeping depth shallow?
+\end{quote}
+
+\subsection{Research Roadmap for Week 04}
+To conclude our project milestone, our team plans the following research activities:
+\begin{itemize}
+    \item \textbf{a. Implementation of Pyramid-Shift-ResMLP:} Merge the multi-stage downsampling backbone of Pyramid-ResMLP with the zero-parameter spatial shift operator to create a lightweight, fully convolutional-free vision model.
+    \item \textbf{b. Unified high-resolution benchmarking:} Benchmark Pyramid-ResMLP, Shift-ResMLP, and CA-Mixer on Tiny-ImageNet ($64*64$) under strictly standardized seeds, batch sizes, and data augmentation schedules.
+    \item \textbf{c. Hardware inference profiling:} Implement a standalone benchmarking script measuring actual deployment latency (in milliseconds per batch) and throughput (images per second) using \texttt{torch.cuda.Event} (with warm-up and GPU synchronization) and ONNX Runtime to empirically verify the zero-overhead claim of structural re-parameterization.
+\end{itemize}

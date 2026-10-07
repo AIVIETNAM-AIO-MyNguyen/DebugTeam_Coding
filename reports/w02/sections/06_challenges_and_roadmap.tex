@@ -23,8 +23,27 @@ With our baseline models replicated, our plan for \textbf{Week 03} focuses on fo
 \end{itemize}
 
 \subsection{Questions for Teaching Assistant (TA) consultation}
-We have prepared two specific technical questions for our assigned Teaching Assistant:
+In MetaFormer~\cite{yu2022metaformer}, Yu et al. showed that the general architecture (separating token mixing and channel mixing) is a key factor for vision models, demonstrating that even an extremely simple token mixer like average pooling (PoolFormer) can achieve strong performance.
+
+However, comparing the ImageNet benchmark curves of PoolFormer and ResMLP highlights a major difference in parameter efficiency:
+\begin{itemize}[leftmargin=1.5em]
+    \item \textbf{PoolFormer parameter efficiency:} PoolFormer reaches $81.4\%$ Top-1 accuracy with only $\approx 31\text{M}$ parameters and $5.0\text{G}$ MACs (and reaches $82.5\%$ with $\approx 73\text{M}$ parameters and $11.6\text{G}$ MACs).
+    \item \textbf{ResMLP parameter bloat:} In contrast, ResMLP requires a massive budget of $\approx 116\text{M}$ parameters (ResMLP-36) and $23.0\text{G}$ MACs just to reach $\approx 81.0\%$ Top-1 accuracy.
+\end{itemize}
+
+\textbf{Team Hypothesis:} Our team hypothesizes that this significant gap in parameter efficiency is driven by their macro-architectural design:
+\begin{itemize}[leftmargin=1.5em]
+    \item \textbf{Hierarchical pyramid with conv embeddings:} PoolFormer uses a 4-stage pyramid layout. Before each stage, a convolutional embedding layer downsamples the spatial grid while expanding channel capacity, which gradually shrinks image resolution and continuously injects local inductive bias.
+    \item \textbf{Single-scale isotropic columnar design:} ResMLP uses a single-scale columnar structure. It embeds the image only once at the patch stem and maintains a constant token count $N$ and channel width $D$ across all layers. Without multi-scale spatial reduction and intermediate conv embeddings, ResMLP must scale up depth and width massively to learn rich visual features, resulting in excessive parameters.
+\end{itemize}
+
+Based on this observation, we would like to consult our Teaching Assistant on the following questions:
 \begin{enumerate}[label=\textbf{Q\arabic*:}]
-    \item \textbf{Inference speed benchmarking:} When measuring inference speed and verifying the zero-overhead claim of re-parameterization, is benchmarking directly in PyTorch using \texttt{torch.cuda.Event} (with warm-up and synchronization) sufficient, or should we export the model to ONNX Runtime or TensorRT?
-    \item \textbf{Parameter budgeting on larger images:} When moving from CIFAR-100 ($32 * 32$) to Tiny-ImageNet ($64 * 64$), should we keep the parameter count around $\approx 2.5\text{M}$ (for example by using patch size $P=8$ to keep 64 tokens), or should we increase the model size to match the higher resolution?
+    \item \textbf{Validity of our architectural hypothesis:} From the TA's perspective, is our hypothesis sound that ResMLP's lower parameter efficiency stems primarily from its isotropic single-scale layout and the lack of multi-stage convolutional downsampling embeddings?
+    \item \textbf{Direction for Week 03 modeling:} To address this limitation in our research project:
+    \begin{itemize}
+        \item \textit{Option A (Pyramid ResMLP):} Should we extend ResMLP into a hierarchical multi-stage architecture with convolutional downsampling layers before each stage (similar to PoolFormer or RepMLP)?
+        \item \textit{Option B (Isotropic Re-parameterization):} Or should we keep the isotropic columnar structure (preserving ResMLP's simple uniform design) and focus strictly on improving data efficiency by adding structural re-parameterization directly into the linear token mixer?
+    \end{itemize}
+    Which direction would the TA recommend as more scientifically impactful and feasible within the AIO Topic Team scope?
 \end{enumerate}
