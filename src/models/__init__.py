@@ -12,6 +12,12 @@ from src.models.base import BaseClassifier, MODEL_REGISTRY, list_models, registe
 import src.models.mlp_mixer  # noqa: F401
 import src.models.res_mlp
 import src.models.rep_mlp
+import src.models.rep_mlp_dws
+import src.models.rep_mlp_sep
+import src.models.res_mlp_rep_token
+import src.models.res_mlp_local_stem
+import src.models.pyramid_res_mlp
+import src.models.pyramid_res_mlp_pure
 import src.models.res_mlp_v2
 import src.models.res_mlp_spatial_shift
 import src.models.conv_mixer

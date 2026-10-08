@@ -1,0 +1,25 @@
+\section{Overview and Problem Formulation}
+\label{section:overview}
+
+\subsection{Motivation: Addressing the Parameter-Efficiency Bottleneck in ResMLP}
+At the conclusion of our Week 02 benchmark, our team identified a fundamental structural limitation in columnar vision MLP architectures. Under identical experimental conditions on CIFAR-100, vanilla ResMLP~\cite{touvron2021resmlp} required 2,191,204 parameters to achieve a Top-1 validation accuracy of 62.40\%. In contrast, modern hierarchical architectures such as PoolFormer~\cite{yu2022metaformer} and RepMLP~\cite{ding2022repmlp} demonstrated substantially higher accuracy with equal or fewer parameters.
+
+This performance gap raised an important research question: \textit{Why does columnar ResMLP struggle to learn efficient visual representations from small datasets, and why do hierarchical architectures achieve significantly higher parameter efficiency?}
+
+Our team formulated the working hypothesis that isotropic columnar models suffer from two structural disadvantages:
+\begin{itemize}
+    \item \textbf{Absence of multi-scale feature hierarchies:} In vanilla ResMLP, non-overlapping patch slicing maintains a rigid, single-scale token sequence ($N = 64$ for patch size $P = 4$) throughout all network layers. Because spatial token dimensions never contract, early layers are forced to process global token interactions prematurely, while later layers lack compact, semantically rich spatial representations.
+    \item \textbf{Lack of 2D translation equivariance:} A dense linear token mixing matrix $\mathbf{W} \in \mathbb{R}^{N \times N}$ treats all spatial positions as arbitrary permutation-invariant tokens. It does not possess any built-in concept of adjacent 2D pixel proximity, requiring massive training data or heavy regularizations to learn spatial relationships from scratch.
+\end{itemize}
+
+We hypothesized that introducing convolutional patch downsampling (a pyramid backbone) before each stage shrinks the token sequence, broadens the effective receptive field, and provides strong multi-scale inductive bias, enabling the network to achieve high accuracy with a fraction of the parameter cost.
+
+\subsection{Research Objectives for Week 03}
+To verify this hypothesis and explore the broader design space of spatial mixing, our team conducted five complementary research investigations in Week 03:
+\begin{itemize}
+    \item \textbf{a. Validating hierarchical pyramids with re-parameterization:} We developed Pyramid-ResMLP, which integrates an overlapping convolution stem, a 3-stage feature pyramid ($16 \times 16 \rightarrow 8 \times 8 \rightarrow 4 \times 4$ token resolution for the $32 \times 32$ CIFAR-100 dataset), and a structural re-parameterization token mixer (RepTokenMix layer). To isolate the exact source of performance gains, we also trained Pyramid-ResMLP Pure as an unaugmented ablation control.
+    \item \textbf{b. Evaluating parameter-free spatial communication:} We evaluated Shift-ResMLP, which replaces matrix multiplication in token mixing with a 4-direction coordinate channel shift. This eliminates all learnable spatial weights, providing an empirical test of whether non-parametric coordinate routing can provide sufficient inductive bias.
+    \item \textbf{c. Resolution-agnostic cellular automata mixing:} We explored CA-Mixer, which replaces fixed-dimension matrix mixing with Neural Cellular Automata (NCA) updates. Because its perception operators are local 2D convolutions, its parameter count remains constant across arbitrary input resolutions.
+    \item \textbf{d. MetaFormer and hybrid paradigms:} We examined non-parametric average pooling (PoolFormer-S12) and a hybrid architecture (HybridFormer) combining early-stage pooling with late-stage self-attention on CIFAR-100.
+    \item \textbf{e. Scaling to Tiny-ImageNet ($64 \times 64$):} We evaluated whether the multi-stage pyramid design scales effectively from CIFAR-100 to Tiny-ImageNet (200 classes) under different channel capacities and regularization schedules.
+\end{itemize}

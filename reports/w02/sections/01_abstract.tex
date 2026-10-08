@@ -1,0 +1,7 @@
+\begin{abstract}
+This report presents the Week 02 progress of \textbf{Debug Team} in the \textbf{AI VIET NAM (AIO2026) Topic Team} program. Following our project plan from Week 01, our main goal this week was to replicate and benchmark two baseline Vision MLP models: \textbf{ResMLP} (\textit{Touvron et al.}, 2021) and \textbf{RepMLP} (\textit{Ding et al.}, 2022). 
+
+To make the comparison fair, we matched both models to around $\approx 2.16\text{M}$--$2.19\text{M}$ parameters and trained them from scratch on \textbf{CIFAR-100} for 100 epochs using the same setup (AdamW, cosine learning rate schedule, RandAugment, Mixup, CutMix, and FP16 mixed precision). We also calculate the exact parameter formulas for both models, explaining the difference between ResMLP's single-scale columnar structure ($2,191,204$ parameters) and RepMLP's multi-stage structure ($2,155,684$ parameters). 
+
+Our results show that RepMLP learns faster in early epochs and reaches higher accuracy ($71.46\%$ vs. $62.40\%$), mainly because its convolutional branches help capture local image patterns. These results give us a solid baseline to test our proposed re-parameterized token mixer in Week 03.
+\end{abstract}

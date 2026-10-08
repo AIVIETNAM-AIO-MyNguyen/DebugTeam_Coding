@@ -1,0 +1,24 @@
+\section{Overview and Week 02 Objectives}
+\label{sec:overview}
+
+\subsection{Context and project goals}
+In the \textbf{AI VIET NAM (AIO2026) Topic Team} program, Weeks 02 and 03 focus on running experiments and gathering results. Our project aims to improve data efficiency in Vision MLPs using structural re-parameterization. 
+
+Before testing any new architectures, we first need to implement and test the baseline models properly under the exact same conditions. Therefore, our focus for \textbf{Week 02} is simply \textbf{replicating baselines and standardizing experiments}.
+
+\subsection{Week 02 main objectives}
+To build a solid starting point for our project, our team focused on three key goals in Week 02:
+\begin{enumerate}[label=\textbf{\arabic*.}]
+    \item \textbf{Replicating baseline architectures:} Implement two representative Vision MLP models from scratch:
+    \begin{itemize}
+        \item \textbf{ResMLP}~\cite{touvron2021resmlp}: A simple columnar architecture where token mixing uses a single linear layer without non-linear activations.
+        \item \textbf{RepMLP}~\cite{ding2022repmlp}: A multi-stage architecture that adds parallel depthwise conv layers during training to inject local image details.
+    \end{itemize}
+    \item \textbf{Standardizing parameter budgets:} Keep both models at approximately $\approx \mathbf{2.16\text{M} - 2.19\text{M}}$ parameters so that the comparison on \textbf{CIFAR-100} is fair. We also write down the exact closed-form formulas for their parameter counts.
+    \item \textbf{Setting up a shared training pipeline:} Train both models for 100 epochs from scratch with identical hyperparameters, data augmentations (RandAugment, Mixup, CutMix), and FP16 mixed precision, recording their loss and accuracy curves.
+\end{enumerate}
+
+\subsection{Scope of this report}
+Although we have started coding other experimental variants in our repository (such as local stems, pyramid ResMLP, and our proposed Rep-ResMixer), we deliberately keep them out of this Week 02 report. 
+
+Our team wants to first confirm the baseline results and ensure all training logs are solid before evaluating new modifications in Week 03.

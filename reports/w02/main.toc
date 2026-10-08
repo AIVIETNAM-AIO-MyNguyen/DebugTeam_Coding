@@ -1,0 +1,63 @@
+\babel@toc {vietnamese}{}\relax 
+\contentsline {section}{\numberline {I}Tóm tắt nghiên cứu}{1}{section.1}%
+\contentsline {section}{\numberline {II}Giới thiệu và câu hỏi nghiên cứu}{5}{section.2}%
+\contentsline {subsection}{\numberline {II.1}Bối cảnh và ý nghĩa thực tiễn của bài toán STLF}{5}{subsection.2.1}%
+\contentsline {subsection}{\numberline {II.2}Khoảng trống nghiên cứu}{5}{subsection.2.2}%
+\contentsline {subsection}{\numberline {II.3}Mục tiêu và câu hỏi nghiên cứu}{6}{subsection.2.3}%
+\contentsline {subsection}{\numberline {II.4}Đóng góp chính của nghiên cứu}{6}{subsection.2.4}%
+\contentsline {section}{\numberline {III}Nghiên cứu liên quan}{7}{section.3}%
+\contentsline {subsection}{\numberline {III.1}Tiến trình phát triển các phương pháp dự báo phụ tải}{7}{subsection.3.1}%
+\contentsline {subsection}{\numberline {III.2}Nghiên cứu của Roy và cộng sự (2025)}{8}{subsection.3.2}%
+\contentsline {subsection}{\numberline {III.3}Khoảng trống nghiên cứu và đề xuất mở rộng}{8}{subsection.3.3}%
+\contentsline {section}{\numberline {IV}Phương pháp và kiến trúc nghiên cứu}{9}{section.4}%
+\contentsline {subsection}{\numberline {IV.1}Tổng quan phương pháp}{9}{subsection.4.1}%
+\contentsline {subsection}{\numberline {IV.2}Phương pháp cơ sở đối chuẩn (Baseline Method)}{9}{subsection.4.2}%
+\contentsline {subsection}{\numberline {IV.3}Mô-đun 1: Giảm đa cộng tuyến ngoại sinh bằng PCA}{9}{subsection.4.3}%
+\contentsline {subsection}{\numberline {IV.4}Mô-đun 2: Đặc trưng vật lý và chu kỳ liên tục}{11}{subsection.4.4}%
+\contentsline {subsubsection}{\numberline {IV.4.1}Chỉ số nhu cầu làm mát và sưởi ấm (CDD và HDD)}{11}{subsubsection.4.4.1}%
+\contentsline {subsubsection}{\numberline {IV.4.2}Chuỗi điều hòa Fourier liên tục}{12}{subsubsection.4.4.2}%
+\contentsline {subsection}{\numberline {IV.5}Mô-đun 3: Khám phá hai chế độ vận hành và tính bù trừ sai số}{12}{subsection.4.5}%
+\contentsline {subsection}{\numberline {IV.6}Mô-đun 4: Kiến trúc Context-Aware Stacking (CAS)}{13}{subsection.4.6}%
+\contentsline {subsection}{\numberline {IV.7}Cơ sở lý luận lựa chọn phương pháp}{14}{subsection.4.7}%
+\contentsline {paragraph}{Phù hợp với đặc tính dữ liệu:}{14}{paragraph*.5}%
+\contentsline {paragraph}{Phù hợp với mục tiêu nghiên cứu:}{14}{paragraph*.6}%
+\contentsline {paragraph}{Lợi thế so với các phương pháp hiện có:}{14}{paragraph*.7}%
+\contentsline {section}{\numberline {V}Dữ liệu và thiết kế thí nghiệm}{14}{section.5}%
+\contentsline {subsection}{\numberline {V.1}Dữ liệu thực nghiệm và tiền xử lý}{14}{subsection.5.1}%
+\contentsline {subsubsection}{\numberline {V.1.1}Nguồn dữ liệu và phân chia tập mẫu}{14}{subsubsection.5.1.1}%
+\contentsline {subsubsection}{\numberline {V.1.2}Quy trình tiền xử lý dữ liệu}{15}{subsubsection.5.1.2}%
+\contentsline {subsubsection}{\numberline {V.1.3}Tập đặc trưng 24 biến}{15}{subsubsection.5.1.3}%
+\contentsline {subsection}{\numberline {V.2}Các cấu hình thử nghiệm bóc tách (Ablation)}{15}{subsection.5.2}%
+\contentsline {subsection}{\numberline {V.3}Chiến lược huấn luyện và tối ưu siêu tham số}{16}{subsection.5.3}%
+\contentsline {paragraph}{Giao thức phân chia dữ liệu:}{16}{paragraph*.8}%
+\contentsline {paragraph}{Cấu hình mô hình cơ sở (Base Models):}{16}{paragraph*.9}%
+\contentsline {paragraph}{Quy trình Out-Of-Fold và tối ưu hóa mô hình tổng hợp (LightGBM):}{16}{paragraph*.10}%
+\contentsline {paragraph}{Hàm mất mát:}{17}{paragraph*.11}%
+\contentsline {subsection}{\numberline {V.4}Quy trình đánh giá và thước đo hiệu năng}{17}{subsection.5.4}%
+\contentsline {subsubsection}{\numberline {V.4.1}Các chỉ số sai số tiêu chuẩn}{17}{subsubsection.5.4.1}%
+\contentsline {subsubsection}{\numberline {V.4.2}Đánh giá sai số theo 8 điều kiện vận hành}{17}{subsubsection.5.4.2}%
+\contentsline {subsubsection}{\numberline {V.4.3}Kiểm định ý nghĩa thống kê Diebold-Mariano}{18}{subsubsection.5.4.3}%
+\contentsline {section}{\numberline {VI}Kết quả và thảo luận}{18}{section.6}%
+\contentsline {subsection}{\numberline {VI.1}Tái hiện kết quả bài báo gốc (Baseline Replication)}{18}{subsection.6.1}%
+\contentsline {subsection}{\numberline {VI.2}Kết quả thực nghiệm mô hình đề xuất CAS}{19}{subsection.6.2}%
+\contentsline {subsubsection}{\numberline {VI.2.1}Đánh giá hiệu năng tổng thể của mô hình đề xuất}{19}{subsubsection.6.2.1}%
+\contentsline {subsubsection}{\numberline {VI.2.2}Nghiên cứu triệt tiêu thành phần (Ablation Study)}{21}{subsubsection.6.2.2}%
+\contentsline {subsubsection}{\numberline {VI.2.3}Phân tích hai chế độ vận hành (Dual-Regime) và tính bù trừ mô hình}{22}{subsubsection.6.2.3}%
+\contentsline {subsubsection}{\numberline {VI.2.4}Phân tích mức độ ảnh hưởng của các biến qua SHAP}{24}{subsubsection.6.2.4}%
+\contentsline {subsection}{\numberline {VI.3}Thảo luận và phân tích chuyên sâu}{25}{subsection.6.3}%
+\contentsline {subsubsection}{\numberline {VI.3.1}Cơ chế hoạt động và nguyên nhân tạo nên sự vượt trội của CAS}{25}{subsubsection.6.3.1}%
+\contentsline {subsubsection}{\numberline {VI.3.2}Điểm khác biệt so với bài báo gốc}{26}{subsubsection.6.3.2}%
+\contentsline {subsubsection}{\numberline {VI.3.3}Phân tích các trường hợp dự báo sai (Error Analysis)}{26}{subsubsection.6.3.3}%
+\contentsline {subsubsection}{\numberline {VI.3.4}Đánh giá hiệu quả kinh tế và ứng dụng thực tiễn}{27}{subsubsection.6.3.4}%
+\contentsline {paragraph}{Định lượng độ bất định với khoảng tin cậy Conformal Prediction:}{27}{paragraph*.20}%
+\contentsline {subsection}{\numberline {VI.4}Hạn chế của nghiên cứu}{28}{subsection.6.4}%
+\contentsline {section}{\numberline {VII}Kết luận và hướng nghiên cứu tiếp theo}{28}{section.7}%
+\contentsline {subsection}{\numberline {VII.1}Kết luận}{28}{subsection.7.1}%
+\contentsline {subsection}{\numberline {VII.2}Hướng nghiên cứu tiếp theo}{29}{subsection.7.2}%
+\contentsline {section}{\numberline {VIII}Tài liệu tham khảo}{30}{section.8}%
+\babel@toc {english}{}\relax 
+\babel@toc {english}{}\relax 
+\babel@toc {english}{}\relax 
+\babel@toc {vietnamese}{}\relax 
+\contentsline {section}{Phụ lục}{32}{section.8}%
+\contentsline {paragraph}{Phân tích độ chính xác theo 4 mùa trong năm trên tập kiểm tra Năm 3:}{35}{paragraph*.23}%

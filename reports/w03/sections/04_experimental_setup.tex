@@ -1,0 +1,110 @@
+\section{Experimental Setup and Training Protocols}
+\label{section:experimental_setup}
+
+This section outlines the benchmark datasets, training protocols, regularization strategies, and execution environments utilized across our Week 03 evaluations. Following standard practices established in modern vision Transformer and MLP literatures~\cite{ding2022repmlp, yu2022metaformer, touvron2021resmlp}, all models are evaluated under carefully controlled optimization recipes. We describe the datasets and evaluation metrics in Section~\ref{subsection:datasets}, detail the core training recipes and regularization schemes in Section~\ref{subsection:recipes}, present model-specific implementation settings in Section~\ref{subsection:member_pipelines}, and summarize all configurations in Table~\ref{tab:hyperparameters}.
+
+\subsection{Datasets and Evaluation Metrics}
+\label{subsection:datasets}
+
+\textbf{CIFAR-100 dataset} consists of 60,000 $32*32$ color images divided across 100 fine-grained semantic categories (600 images per class). We partition the official 50,000 training images into 45,000 training samples and 5,000 validation samples using fixed random seed 42 to ensure deterministic reproducibility across all experimental runs, while reserving the remaining 10,000 images as the held-out test split.
+
+\textbf{Tiny-ImageNet dataset} is employed to evaluate the scalability of our hierarchical models to higher image resolutions and larger class diversity. It comprises 100,000 training images and 10,000 validation images spanning 200 distinct ImageNet categories at $64*64$ resolution (500 training images per class).
+
+\textbf{Evaluation metrics and calibration} are measured across several quantitative dimensions: Top-1 validation accuracy (\%), Top-5 validation accuracy (\%), cross-entropy loss, wall-clock training duration, and Expected Calibration Error (ECE). For models evaluated across multiple random seeds (such as CA-Mixer), we report the empirical mean alongside sample standard deviations ($\mu \pm \sigma$).
+
+\subsection{Training Recipes and Optimization Protocols}
+\label{subsection:recipes}
+
+\textbf{Optimization and learning rate scheduling:} Following the training recipe of Touvron et al.~\cite{touvron2021resmlp} and Ding et al.~\cite{ding2022repmlp}, all models are trained using the AdamW optimizer~\cite{loshchilov2017adamw} with decoupled weight decay $\lambda = 0.05$. The learning rate follows a Cosine Annealing schedule~\cite{loshchilov2016sgdr} initialized at $\eta = 10^{-3}$ (or scaled according to batch size) and decayed gradually to a minimum threshold $\eta_{\text{min}} = 10^{-6}$ across epochs. Gradient clipping with a maximum norm of $1.0$ is enforced to prevent gradient instability during early optimization phases.
+
+\textbf{Data augmentation suite:} To counteract overfitting and force models to learn robust invariant representations on compact datasets without ImageNet pretraining, we apply an intensive data augmentation pipeline. This includes RandAugment~\cite{cubuk2020randaugment} ($N=2, M=9$), Random Erasing~\cite{zhong2020random} ($p=0.1$ or $p=0.25$), Color Jitter ($0.1$), Mixup~\cite{zhang2017mixup} ($\alpha=0.8$), and CutMix~\cite{yun2019cutmix} ($\alpha=1.0$). Cross-entropy loss is computed with label smoothing $\epsilon = 0.1$.
+
+\textbf{Stochastic depth (DropPath):} For deeper models and higher-resolution tasks where capacity can exceed the data manifold, stochastic depth~\cite{huang2016deep} is incorporated into residual paths. DropPath rate is set to $0.05$ on Tiny-ImageNet for Pyramid-ResMLP and $0.10$ for 4-stage MetaFormer models, linearly increasing across blocks from 0 to the target rate.
+
+\textbf{Mixed precision and hardware acceleration:} All experiments utilize Automatic Mixed Precision (AMP FP16) to accelerate tensor operations and reduce GPU memory consumption without sacrificing numerical stability. Training is distributed across multi-GPU workstations and Kaggle accelerators using PyTorch Distributed Data Parallel (DDP).
+
+\subsection{Model-Specific Experimental Pipelines}
+\label{subsection:member_pipelines}
+
+Because our team explored multiple architectural paradigms in parallel, individual experiments were executed under tailored training pipelines:
+
+\textbf{Pyramid-ResMLP and Pyramid-ResMLP Pure} were benchmarked on our local multi-GPU workstation using distributed data parallel (DDP, 2 GPUs) via \texttt{src/engine/trainer.py}. Both models were trained for 100 epochs with batch size 256 using seed 42, AdamW optimizer, cosine learning rate decay ($\eta = 10^{-3} \rightarrow 10^{-6}$), and the complete vision augmentation suite (RandAugment, Random Erasing, Mixup, CutMix, label smoothing). On Tiny-ImageNet ($64*64$), batch size was set to 128 with initial learning rate $4*10^{-4}$ and weight decay $0.10$.
+
+\textbf{Shift-ResMLP} was executed on a dedicated single-GPU CUDA environment using our standardized training engine. To comfortably fit the 12-block columnar architecture ($D=384$) in device memory, the per-device batch size was set to 128 over 100 epochs, utilizing identical AdamW optimization, Cosine schedule ($\eta = 10^{-3} \rightarrow 10^{-6}$), and vision augmentations.
+
+\textbf{CA-Mixer} was implemented in \texttt{src/notebooks/ca\_mixer\_vs\_mlp\_mixer.ipynb} and evaluated on an NVIDIA Tesla T4 GPU. In addition to initial 30-epoch rapid exploratory runs ($1.21$M parameters, 3 seeds), CA-Mixer was systematically scaled to a parameter-matched configuration containing \textbf{1.90M parameters} ($C=160, D=6, C_{\text{nca}}=160, C_{\text{channel}}=652$) and trained for \textbf{100 epochs} (5 linear warmup epochs) with batch size 256, AdamW optimizer ($\eta = 10^{-3}$, $\lambda=0.05$), label smoothing $\epsilon=0.1$, step-budget ratio $\kappa=0.5$ ($T = \lceil 0.5 \times \max(H, W) \rceil = 4$ steps at $32\times32$), $T$-jitter of $0.25$, and update probability $0.8$ under AMP FP16. In-memory GPU tensor execution eliminated CPU data transfer overhead, maintaining a throughput of 3,942 images/second (35.0 seconds/epoch, 58.4 minutes total).
+
+\textbf{PoolFormer-S12} was executed on Kaggle using 2x NVIDIA T4 GPUs under PyTorch Distributed Data Parallel (DDP). To maintain fidelity with the original MetaFormer paper~\cite{yu2022metaformer}, CIFAR-100 images were resized to $224*224$ via bicubic interpolation. Training ran for 100 epochs (5 warmup epochs) with a global batch size of 64 and a base learning rate scaled to $6.25*10^{-5}$ following the linear scaling rule ($10^{-3} \times 64 / 1024$). Vision augmentations followed the AutoAugment CIFAR-10 policy with Random Erasing ($0.25$), Mixup ($\alpha=0.8$), and CutMix ($\alpha=1.0$).
+
+\textbf{HybridFormer} was executed on Kaggle using 2x NVIDIA T4 GPUs under DDP at native $32*32$ resolution. Due to the integration of multi-head self-attention in Stages 3 and 4, the model was trained for an extended schedule of 300 epochs (5 warmup epochs) with batch size 256, initial learning rate $5*10^{-4}$, and DropPath $0.10$.
+
+\textbf{Hyperparameter summary across paradigms:} To enable a direct and systematic side-by-side comparison across these diverse training setups, all architectural hyperparameters, optimization schedules, vision augmentation configurations, and hardware allocations are compiled in Table~\ref{tab:hyperparameters}.
+
+\begin{table}[H]
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{0.88}
+\begin{subtable}{\textwidth}
+\centering
+\begin{tabularx}{\textwidth}{l | >{\centering\arraybackslash}X | >{\centering\arraybackslash}X | >{\centering\arraybackslash}X | >{\centering\arraybackslash}X}
+\toprule
+\textbf{Hyperparameter} & \textbf{Pyramid-ResMLP Pure} & \textbf{Pyramid-ResMLP} & \textbf{Shift-ResMLP} & \textbf{CA-Mixer} \\
+\midrule
+Target Dataset & CIFAR-100 & CIFAR-100 & CIFAR-100 & CIFAR-100 \\
+Input Resolution & $32 \times 32$ & $32 \times 32$ & $32 \times 32$ & $32 \times 32$ \\
+Total Epochs & 100 & 100 & 100 & 100 \\
+Batch Size & 256 & 256 & 128 & 256 \\
+Optimizer & AdamW & AdamW & AdamW & AdamW \\
+Initial Learning Rate ($\eta$) & $10^{-3}$ & $10^{-3}$ & $10^{-3}$ & $10^{-3}$ \\
+LR Schedule & Cosine (to $10^{-6}$) & Cosine (to $10^{-6}$) & Cosine (to $10^{-6}$) & Cosine (to $10^{-6}$) \\
+Warmup Epochs & 0 & 0 & 0 & 5 \\
+Weight Decay ($\lambda$) & 0.05 & 0.05 & 0.05 & 0.05 \\
+Gradient Clipping & Norm 1.0 & Norm 1.0 & Norm 1.0 & Norm 1.0 \\
+Data Augmentation & RandAugment, Erasing, Jitter & RandAugment, Erasing, Jitter & RandAugment, Erasing, Jitter & GPU Crop, HFlip \\
+Mixup / CutMix ($\alpha_1, \alpha_2$) & 0.8 / 1.0 & 0.8 / 1.0 & 0.8 / 1.0 & None \\
+Label Smoothing ($\epsilon$) & 0.1 & 0.1 & 0.1 & 0.1 \\
+DropPath Rate & None & None & None & None \\
+Compute Hardware & 2$\times$ GPUs (DDP) & 2$\times$ GPUs (DDP) & 1$\times$ CUDA GPU & 1$\times$ Tesla T4 (in-memory) \\
+Mixed Precision & AMP FP16 & AMP FP16 & AMP FP16 & AMP FP16 \\
+\bottomrule
+\end{tabularx}
+\vspace{0.15em}
+\caption{Primary Vision MLP candidates on CIFAR-100 (CA-Mixer listed at 100-epoch scaled configuration; initial exploration evaluated at 30 epochs with 2 warmup epochs).}
+\label{tab:hyperparams_mlps}
+\end{subtable}
+
+\vspace{0.15em}
+
+\begin{subtable}{\textwidth}
+\centering
+\begin{tabularx}{\textwidth}{l | >{\centering\arraybackslash}X | >{\centering\arraybackslash}X | >{\centering\arraybackslash}X}
+\toprule
+\textbf{Hyperparameter} & \textbf{PoolFormer-S12} & \textbf{HybridFormer} & \textbf{Pyramid-ResMLP (Scaled)} \\
+\midrule
+Target Dataset & CIFAR-100 & CIFAR-100 & Tiny-ImageNet (200 Classes) \\
+Input Resolution & $224 \times 224$ (bicubic) & $32 \times 32$ (native) & $64 \times 64$ (native) \\
+Total Epochs & 100 & 300 & 100 \\
+Batch Size & 64 ($32 \times 2$) & 256 ($128 \times 2$) & 128 (DDP) \\
+Optimizer & AdamW & AdamW & AdamW \\
+Initial Learning Rate ($\eta$) & $6.25 \times 10^{-5}$ & $5 \times 10^{-4}$ & $4 \times 10^{-4}$ \\
+LR Schedule & Cosine (to $10^{-6}$) & Cosine (to $10^{-6}$) & Cosine (to $10^{-6}$) \\
+Warmup Epochs & 5 & 5 & 0 \\
+Weight Decay ($\lambda$) & 0.05 & 0.05 & 0.10 \\
+Gradient Clipping & None & Norm 1.0 & Norm 1.0 \\
+DropPath Rate & 0.10 & 0.10 & 0.05 \\
+Data Augmentation & AutoAugment, Erasing & AutoAugment, Erasing & RandAugment, Erasing (0.25) \\
+Mixup / CutMix ($\alpha_1, \alpha_2$) & 0.8 / 1.0 & 0.8 / 1.0 & 0.8 / 1.0 \\
+Label Smoothing ($\epsilon$) & 0.1 & 0.1 & 0.1 \\
+Compute Hardware & 2$\times$ Kaggle T4 (DDP) & 2$\times$ Kaggle T4 (DDP) & 2$\times$ GPUs (DDP) \\
+Mixed Precision & AMP FP16 & AMP FP16 & AMP FP16 \\
+\bottomrule
+\end{tabularx}
+\vspace{0.15em}
+\caption{MetaFormer baselines and scaled high-resolution benchmark.}
+\label{tab:hyperparams_baselines}
+\end{subtable}
+\vspace{-0.9em}
+\captionsetup{skip=2pt}
+\caption{Comprehensive hyperparameter and training setup comparison across all models investigated in Week 03, partitioned into (a) primary Vision MLP candidates on CIFAR-100 and (b) MetaFormer baselines and scaled high-resolution benchmarks.}
+\label{tab:hyperparameters}
+\end{table}

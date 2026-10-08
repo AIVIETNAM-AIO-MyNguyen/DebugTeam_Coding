@@ -176,15 +176,19 @@ class TokenMixLayer(nn.Module):
             self.local_perceptron.deploy = True
 
 
+from src.models.layers import DropPath
+
+
 class ChannelMixLayer(nn.Module):
     """Cross-channel feed-forward sublayer (FCN)."""
-    def __init__(self, features: int, expansion_factor: int):
+    def __init__(self, features: int, expansion_factor: int, drop_path: float = 0.0):
         super().__init__()
         num_hidden = features * expansion_factor
         self.aff1 = AffineTransform(features=features)
         self.fc1 = nn.Linear(features, num_hidden)
         self.fc2 = nn.Linear(num_hidden, features)
         self.aff2 = AffineTransform(features=features)
+        self.drop_path = DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         residual = x
@@ -193,7 +197,7 @@ class ChannelMixLayer(nn.Module):
         x = F.gelu(x)
         x = self.fc2(x)
         x = self.aff2(x)
-        return x + residual
+        return residual + self.drop_path(x)
 
 
 class ResMLPLayer(nn.Module):

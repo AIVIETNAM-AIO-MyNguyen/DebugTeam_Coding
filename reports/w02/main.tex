@@ -1,0 +1,95 @@
+\documentclass[12pt]{ai_conquer2026}
+\addbibresource{references.bib}
+\usepackage{multirow}
+
+% --- Extra Brand colors for AIO table formatting ---
+\definecolor{brandIndigo}{HTML}{333D91} 
+\definecolor{rowLavender}{HTML}{EEECFA}
+
+\title{%
+    \centering
+    \Large {AI VIET NAM -- AI Conquer 2026 -- Topic Team}\\[.5ex]  
+    \Huge \textbf{Week 02 Progress Report: Baseline Replication and Mathematical Parameter Formulation of Vision MLPs (ResMLP \& RepMLP) on CIFAR-100}\\[.5ex]
+}
+
+\author{
+    {\bfseries\large Debug Team} \\[1.2em]
+    \begin{tabular}{ccc}
+        Nguyễn Thị Diễm My & Lê Tiến Anh & Nguyễn Mạnh Tân \\[1.2em]
+    \end{tabular}\\
+    \begin{tabular}{cc}
+        Hoàng Nguyễn Nhật Minh & Lê Minh Hoàng
+    \end{tabular}
+}
+\date{}
+
+% Header --------------------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\href{https://www.facebook.com/aivietnam.edu.vn}{\textcolor{aivnGreen}{\bfseries AI VIET NAM (AI Conquer 2026)}}}
+\rhead{\href{https://aivietnam.edu.vn/}{\textcolor{aivnGreen}{\bfseries aivietnam.edu.vn}}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{1.0pt}
+\renewcommand{\headrule}{{\color{aivnGreen}\hrule width\headwidth height\headrulewidth \vskip-\headrulewidth}}
+
+% Section Numbering in Arabic (1., 1.1., 1.1.1., ...)
+\renewcommand{\thesection}{\arabic{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand{\thesubsubsection}{\thesubsection.\arabic{subsubsection}}
+\titleformat{\section}{\normalfont\LARGE\bfseries}{\thesection.}{0.6em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection.}{0.5em}{}
+\titleformat{\subsubsection}{\normalfont\normalsize\bfseries}{\thesubsubsection.}{0.4em}{}
+
+% Ensure English labels throughout the document
+\selectlanguage{english}
+\addto\captionsenglish{%
+    \renewcommand{\tablename}{Table}%
+    \renewcommand{\figurename}{Figure}%
+    \renewcommand{\contentsname}{Table of Contents}%
+    \renewcommand{\abstractname}{Abstract}%
+    \renewcommand{\refname}{References}%
+}
+\AtBeginDocument{%
+    \selectlanguage{english}%
+    \renewcommand{\tablename}{Table}%
+    \renewcommand{\figurename}{Figure}%
+    \renewcommand{\contentsname}{Table of Contents}%
+    \renewcommand{\abstractname}{Abstract}%
+}
+
+\begin{document}
+\maketitle
+
+\addvspace{-2.5em}
+\setlength{\epigraphwidth}{0.6\textwidth}
+
+\input{sections/01_abstract}
+
+\newpage
+\setcounter{tocdepth}{2}
+\tableofcontents
+\thispagestyle{fancy}
+
+\newpage
+\input{sections/02_overview}
+
+\vspace{1em}
+\input{sections/03_experimental_setup}
+
+\vspace{1em}
+\input{sections/04_replication_results}
+
+\vspace{1em}
+\input{sections/05_architectural_comparison}
+
+\vspace{1em}
+\input{sections/06_challenges_and_roadmap}
+
+\newpage
+\section{References}
+\label{section:references}
+\begin{otherlanguage}{english}
+\printbibliography[heading=none, title={}]
+\end{otherlanguage}
+
+\end{document}
