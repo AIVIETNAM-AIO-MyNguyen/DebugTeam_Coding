@@ -18,6 +18,9 @@ import src.models.res_mlp_rep_token
 import src.models.res_mlp_local_stem
 import src.models.pyramid_res_mlp
 import src.models.pyramid_res_mlp_pure
+import src.models.res_mlp_v2
+import src.models.res_mlp_spatial_shift
+import src.models.conv_mixer
 
 
 def build_model(cfg) -> BaseClassifier:
