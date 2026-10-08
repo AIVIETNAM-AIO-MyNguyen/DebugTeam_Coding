@@ -45,27 +45,27 @@ Because our team explored multiple architectural paradigms in parallel, individu
 \begin{subtable}{\textwidth}
 \centering
 \footnotesize
-\begin{tabularx}{\textwidth}{|l|*{4}{>{\centering\arraybackslash}X|}}
-\hline
-\rowcolor{brandIndigo!10}
+\begin{tabularx}{\textwidth}{l | >{\centering\arraybackslash}X | >{\centering\arraybackslash}X | >{\centering\arraybackslash}X | >{\centering\arraybackslash}X}
+\toprule
 \textbf{Hyperparameter} & \textbf{Pyramid-ResMLP Pure} & \textbf{Pyramid-ResMLP} & \textbf{Shift-ResMLP} & \textbf{CA-Mixer} \\
-\hline
-Target Dataset & CIFAR-100 & CIFAR-100 & CIFAR-100 & CIFAR-100 \\ \hline
-Input Resolution & $32 \times 32$ & $32 \times 32$ & $32 \times 32$ & $32 \times 32$ \\ \hline
-Total Epochs & 100 & 100 & 100 & 100 \\ \hline
-Batch Size & 256 & 256 & 128 & 256 \\ \hline
-Optimizer & AdamW & AdamW & AdamW & AdamW \\ \hline
-Initial Learning Rate ($\eta$) & $10^{-3}$ & $10^{-3}$ & $10^{-3}$ & $10^{-3}$ \\ \hline
-LR Schedule & Cosine (to $10^{-6}$) & Cosine (to $10^{-6}$) & Cosine (to $10^{-6}$) & Cosine (to $10^{-6}$) \\ \hline
-Warmup Epochs & 0 & 0 & 0 & 5 \\ \hline
-Weight Decay ($\lambda$) & 0.05 & 0.05 & 0.05 & 0.05 \\ \hline
-Gradient Clipping & Norm 1.0 & Norm 1.0 & Norm 1.0 & Norm 1.0 \\ \hline
-Data Augmentation & RandAugment, Erasing, Jitter & RandAugment, Erasing, Jitter & RandAugment, Erasing, Jitter & GPU Crop, HFlip \\ \hline
-Mixup / CutMix ($\alpha_1, \alpha_2$) & 0.8 / 1.0 & 0.8 / 1.0 & 0.8 / 1.0 & None \\ \hline
-Label Smoothing ($\epsilon$) & 0.1 & 0.1 & 0.1 & 0.1 \\ \hline
-DropPath Rate & None & None & None & None \\ \hline
-Compute Hardware & 2$\times$ GPUs (DDP) & 2$\times$ GPUs (DDP) & 1$\times$ CUDA GPU & 1$\times$ Tesla T4 (in-memory) \\ \hline
-Mixed Precision & AMP FP16 & AMP FP16 & AMP FP16 & AMP FP16 \\ \hline
+\midrule
+Target Dataset & CIFAR-100 & CIFAR-100 & CIFAR-100 & CIFAR-100 \\
+Input Resolution & $32 \times 32$ & $32 \times 32$ & $32 \times 32$ & $32 \times 32$ \\
+Total Epochs & 100 & 100 & 100 & 100 \\
+Batch Size & 256 & 256 & 128 & 256 \\
+Optimizer & AdamW & AdamW & AdamW & AdamW \\
+Initial Learning Rate ($\eta$) & $10^{-3}$ & $10^{-3}$ & $10^{-3}$ & $10^{-3}$ \\
+LR Schedule & Cosine (to $10^{-6}$) & Cosine (to $10^{-6}$) & Cosine (to $10^{-6}$) & Cosine (to $10^{-6}$) \\
+Warmup Epochs & 0 & 0 & 0 & 5 \\
+Weight Decay ($\lambda$) & 0.05 & 0.05 & 0.05 & 0.05 \\
+Gradient Clipping & Norm 1.0 & Norm 1.0 & Norm 1.0 & Norm 1.0 \\
+Data Augmentation & RandAugment, Erasing, Jitter & RandAugment, Erasing, Jitter & RandAugment, Erasing, Jitter & GPU Crop, HFlip \\
+Mixup / CutMix ($\alpha_1, \alpha_2$) & 0.8 / 1.0 & 0.8 / 1.0 & 0.8 / 1.0 & None \\
+Label Smoothing ($\epsilon$) & 0.1 & 0.1 & 0.1 & 0.1 \\
+DropPath Rate & None & None & None & None \\
+Compute Hardware & 2$\times$ GPUs (DDP) & 2$\times$ GPUs (DDP) & 1$\times$ CUDA GPU & 1$\times$ Tesla T4 (in-memory) \\
+Mixed Precision & AMP FP16 & AMP FP16 & AMP FP16 & AMP FP16 \\
+\bottomrule
 \end{tabularx}
 \vspace{0.3em}
 \caption{Primary Vision MLP candidates on CIFAR-100 (CA-Mixer listed at 100-epoch scaled configuration; initial exploration evaluated at 30 epochs with 2 warmup epochs).}
@@ -77,27 +77,27 @@ Mixed Precision & AMP FP16 & AMP FP16 & AMP FP16 & AMP FP16 \\ \hline
 \begin{subtable}{\textwidth}
 \centering
 \footnotesize
-\begin{tabularx}{\textwidth}{|l|*{3}{>{\centering\arraybackslash}X|}}
-\hline
-\rowcolor{brandIndigo!10}
+\begin{tabularx}{\textwidth}{l | >{\centering\arraybackslash}X | >{\centering\arraybackslash}X | >{\centering\arraybackslash}X}
+\toprule
 \textbf{Hyperparameter} & \textbf{PoolFormer-S12} & \textbf{HybridFormer} & \textbf{Pyramid-ResMLP (Scaled)} \\
-\hline
-Target Dataset & CIFAR-100 & CIFAR-100 & Tiny-ImageNet (200 Classes) \\ \hline
-Input Resolution & $224 \times 224$ (bicubic) & $32 \times 32$ (native) & $64 \times 64$ (native) \\ \hline
-Total Epochs & 100 & 300 & 100 \\ \hline
-Batch Size & 64 ($32 \times 2$) & 256 ($128 \times 2$) & 128 (DDP) \\ \hline
-Optimizer & AdamW & AdamW & AdamW \\ \hline
-Initial Learning Rate ($\eta$) & $6.25 \times 10^{-5}$ & $5 \times 10^{-4}$ & $4 \times 10^{-4}$ \\ \hline
-LR Schedule & Cosine (to $10^{-6}$) & Cosine (to $10^{-6}$) & Cosine (to $10^{-6}$) \\ \hline
-Warmup Epochs & 5 & 5 & 0 \\ \hline
-Weight Decay ($\lambda$) & 0.05 & 0.05 & 0.10 \\ \hline
-Gradient Clipping & None & Norm 1.0 & Norm 1.0 \\ \hline
-DropPath Rate & 0.10 & 0.10 & 0.05 \\ \hline
-Data Augmentation & AutoAugment, Erasing & AutoAugment, Erasing & RandAugment, Erasing (0.25) \\ \hline
-Mixup / CutMix ($\alpha_1, \alpha_2$) & 0.8 / 1.0 & 0.8 / 1.0 & 0.8 / 1.0 \\ \hline
-Label Smoothing ($\epsilon$) & 0.1 & 0.1 & 0.1 \\ \hline
-Compute Hardware & 2$\times$ Kaggle T4 (DDP) & 2$\times$ Kaggle T4 (DDP) & 2$\times$ GPUs (DDP) \\ \hline
-Mixed Precision & AMP FP16 & AMP FP16 & AMP FP16 \\ \hline
+\midrule
+Target Dataset & CIFAR-100 & CIFAR-100 & Tiny-ImageNet (200 Classes) \\
+Input Resolution & $224 \times 224$ (bicubic) & $32 \times 32$ (native) & $64 \times 64$ (native) \\
+Total Epochs & 100 & 300 & 100 \\
+Batch Size & 64 ($32 \times 2$) & 256 ($128 \times 2$) & 128 (DDP) \\
+Optimizer & AdamW & AdamW & AdamW \\
+Initial Learning Rate ($\eta$) & $6.25 \times 10^{-5}$ & $5 \times 10^{-4}$ & $4 \times 10^{-4}$ \\
+LR Schedule & Cosine (to $10^{-6}$) & Cosine (to $10^{-6}$) & Cosine (to $10^{-6}$) \\
+Warmup Epochs & 5 & 5 & 0 \\
+Weight Decay ($\lambda$) & 0.05 & 0.05 & 0.10 \\
+Gradient Clipping & None & Norm 1.0 & Norm 1.0 \\
+DropPath Rate & 0.10 & 0.10 & 0.05 \\
+Data Augmentation & AutoAugment, Erasing & AutoAugment, Erasing & RandAugment, Erasing (0.25) \\
+Mixup / CutMix ($\alpha_1, \alpha_2$) & 0.8 / 1.0 & 0.8 / 1.0 & 0.8 / 1.0 \\
+Label Smoothing ($\epsilon$) & 0.1 & 0.1 & 0.1 \\
+Compute Hardware & 2$\times$ Kaggle T4 (DDP) & 2$\times$ Kaggle T4 (DDP) & 2$\times$ GPUs (DDP) \\
+Mixed Precision & AMP FP16 & AMP FP16 & AMP FP16 \\
+\bottomrule
 \end{tabularx}
 \vspace{0.3em}
 \caption{MetaFormer baselines and scaled high-resolution benchmark.}

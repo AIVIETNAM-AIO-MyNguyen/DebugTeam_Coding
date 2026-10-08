@@ -13,17 +13,12 @@ Table~\ref{tab:benchmark_master} compiles the primary empirical results across a
 \toprule
 \textbf{Model Architecture} & \textbf{Paradigm} & \textbf{Spatial Token Mixer} & \textbf{Params} & \textbf{Epochs} & \textbf{Top-1 Val (\%)} & \textbf{Train Time} \\
 \midrule
-\multicolumn{7}{l}{\textit{Week 02 Baselines}} \\
 ResMLP Baseline & Isotropic & Pure Linear $(N \times N)$ & 2.19M & 100 & 62.40\% & 54.6 min \\
 RepMLP Baseline & Hierarchical & RepConv 3-Branch & 2.16M & 100 & 71.46\% & 107.1 min \\
-\midrule
-\multicolumn{7}{l}{\textit{Week 03 Primary Models}} \\
 \textbf{Pyramid-ResMLP Pure} & Hierarchical & Linear $(N_i \times N_i)$ & \textbf{1.93M} & 100 & \textbf{68.22\%} & \textbf{44.9 min} \\
 \textbf{Pyramid-ResMLP} & Hierarchical & RepToken (Fused)$^*$ & \textbf{1.79M} & 100 & \textbf{72.18\%} & \textbf{44.5 min} \\
 \textbf{Shift-ResMLP} & Isotropic & 4-Direction Shift & 14.26M & 100 & \textbf{72.92\%} & 110.2 min \\
 \textbf{CA-Mixer} & Isotropic NCA & Cellular Automata & \textbf{1.90M} & 100 & \textbf{64.92\%} & \textbf{58.4 min} \\
-\midrule
-\multicolumn{7}{l}{\textit{MetaFormer and Hybrid Architectures}} \\
 PoolFormer-S12 & Hierarchical & Non-parametric AvgPool$^\dagger$ & 11.45M & 100 & 59.50\% & $\sim$53 min \\
 HybridFormer & Hierarchical & PoolFormer + MHSA & 10.59M & 300 & \textbf{75.70\%} & $\sim$160 min \\
 \bottomrule
