@@ -542,6 +542,7 @@ class ShiftResMLPBlock(nn.Module):
 # ============================================================
 
 @register_model("shift_resmlp")
+@register_model("res_mlp_spatial_shift")
 class ShiftResMLP(BaseClassifier):
     """
     Shift-ResMLP.
