@@ -14,6 +14,7 @@ import src.models.res_mlp
 import src.models.rep_mlp
 import src.models.res_mlp_v2
 import src.models.res_mlp_spatial_shift
+import src.models.conv_mixer
 
 
 def build_model(cfg) -> BaseClassifier:

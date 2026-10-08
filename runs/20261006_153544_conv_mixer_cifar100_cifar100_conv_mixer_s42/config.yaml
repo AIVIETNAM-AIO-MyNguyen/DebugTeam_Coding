@@ -1,0 +1,51 @@
+experiment:
+  name: 20261006_153544_conv_mixer_cifar100_cifar100_conv_mixer_s42
+  tag: cifar100_conv_mixer
+  base_dir: runs
+training:
+  seed: 42
+  deterministic: true
+  epochs: 100
+  lr: 0.001
+  use_amp: true
+  grad_clip: 1.0
+  label_smoothing: 0.1
+optimizer:
+  name: adamw
+  weight_decay: 0.05
+  momentum: 0.9
+scheduler:
+  name: cosine
+  min_lr: 1e-6
+  step_size: 30
+  gamma: 0.1
+data:
+  dataset: cifar100
+  data_dir: data/cifar100
+  batch_size: 128
+  num_workers: 4
+  pin_memory: true
+  image_size: 32
+  val_split: 0.1
+  download: true
+augmentation:
+  auto_augment: false
+  rand_augment: true
+  random_erasing: 0.1
+  color_jitter: 0.1
+  use_mixup: true
+  mixup_alpha: 0.8
+  cutmix_alpha: 1.0
+model:
+  name: conv_mixer
+  patch_size: 4
+  hidden_dim: 256
+  num_blocks: 8
+  tokens_mlp_dim: 128
+  channels_mlp_dim: 512
+  dropout: 0.0
+  image_size: 32
+  dim: 256
+  depth: 8
+  kernel_size: 5
+  num_classes: 100
