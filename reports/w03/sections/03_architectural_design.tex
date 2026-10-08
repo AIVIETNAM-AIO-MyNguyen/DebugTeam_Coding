@@ -282,7 +282,7 @@ Subtracting the input tensor computes a residual difference representation witho
 \subsubsection{HybridFormer Architecture}
 \label{subsubsection:hybridformer}
 
-HybridFormer explores the synergy between parameter-free pooling and Multi-Head Self-Attention (MHSA) across distinct stages of the hierarchy (Figure~\ref{fig:hybridformer_arch}).
+HybridFormer combines parameter-free pooling with Multi-Head Self-Attention (MHSA) across hierarchical stages (Figure~\ref{fig:hybridformer_arch}).
 
 \textbf{Multi-stage hybrid token mixing} assigns distinct mixing mechanisms to different resolution regimes: lightweight parameter-free pooling blocks in high-resolution early stages (Stages 1 and 2, at $32*32$ and $16*16$), and Multi-Head Self-Attention in low-resolution late stages (Stages 3 and 4, at $8*8$ and $4*4$). This avoids the quadratic complexity of self-attention on large token grids while preserving long-range relational reasoning in deep semantic stages.
 

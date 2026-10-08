@@ -121,7 +121,7 @@ These results demonstrate that the inductive bias provided by fixed differential
 \subsubsection{Extended 300-Epoch Trajectory in HybridFormer}
 In HybridFormer, the inclusion of multi-head self-attention in Stages 2 and 3 necessitates a longer optimization schedule. While the model reaches 65\% accuracy around epoch 100, continued training enables the attention layers to refine long-range semantic dependencies, ultimately peaking at \textbf{75.70\%} validation accuracy at epoch 275 and achieving \textbf{75.27\%} on the held-out test set.
 
-\subsection{Scaling to Tiny-ImageNet ($64*64$, 200 Classes)}
+\subsection{Scaling to Tiny-ImageNet (\texorpdfstring{$64 \times 64$}{64x64}, 200 Classes)}
 To evaluate whether the pyramid architecture scales to higher spatial dimensions and larger class counts, we benchmarked Pyramid-ResMLP on Tiny-ImageNet across two distinct structural and regularization configurations, summarized in Table~\ref{tab:tiny_imagenet_scaling}:
 \begin{itemize}
     \item \textbf{Base Configuration ($C=[96, 192, 384]$, $B=[2, 4, 6]$):} Containing 9.37M deployable parameters, the base model achieved 57.85\% Top-1 validation accuracy. However, signs of overfitting emerged as training accuracy reached 69.08\% while validation loss began to plateau around 2.0546.
