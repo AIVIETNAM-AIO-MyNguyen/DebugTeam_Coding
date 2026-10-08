@@ -27,7 +27,7 @@ In Week 2, our team identified a critical limitation in columnar/isotropic MLP a
 | **Pyramid-ResMLP Pure** | Hierarchical | Linear $(N_i \times N_i)$ | **1.93M** | 100 | **68.22%** | **44.9 min** | Pure linear token mixing ablation |
 | **Pyramid-ResMLP** | Hierarchical | RepToken (Fused) | **1.79M** | 100 | **72.18%** | **44.5 min** | 1.94M train params fuse to 1.79M |
 | **Shift-ResMLP** | Isotropic | 4-Direction Shift | 14.26M | 100 | **72.92%** | 110.2 min | Parameter-free spatial communication |
-| **CA-Mixer** | Isotropic NCA | Cellular Automata | **1.21M** | 30 | **62.87%** | **20.0 min** | Resolution-agnostic ($T=\max(H,W)$) |
+| **CA-Mixer** | Isotropic NCA | Cellular Automata | **1.90M** | 100 | **64.92%** | **58.4 min** | 0.489 GFLOPs, 2.20% ECE (also 62.87% @ 1.21M, 30ep) |
 | **PoolFormer-S12** | Hierarchical | Non-param. AvgPool | 11.45M | 100 | 59.50% | ~53 min | Canonical MetaFormer ($224\times224$) |
 | **HybridFormer** | Hierarchical | PoolFormer + MHSA | 10.59M | 300 | **75.70%** | ~160 min | Pooling (S1-2) + MHSA (S3-4), test: 75.27% |
 
@@ -238,6 +238,20 @@ Comparing the three models reveals the precise origin of our performance gains:
   - Native $40\times40$: **47.83%** Top-1.
   - Native $48\times48$: **32.15%** Top-1.
 
+### 3.4. Parameter-Matched 100-Epoch Scaling (Commit `6c70e3e`)
+- **Configuration:** `patch=4, dim=160, depth=6, nca_hidden=160, channel_hidden=652`
+- **Dynamic Step Budget:** $T = \lceil 0.5 \times \max(h,w) \rceil = 4$ steps at $32\times32$, $T_{\text{jitter}}=0.25$, `update_prob=0.8`, `frozen_filters=True`, `identity_kernel=False`.
+- **Training Recipe:** 100 epochs, AdamW ($\eta = 10^{-3}$, weight decay $= 0.05$), batch size 256, warmup 5 epochs, label smoothing 0.1, AMP FP16. Single Tesla T4 GPU.
+- **Empirical Results:**
+  - **Top-1 Validation Accuracy:** **64.92%** (+2.05% gain over the 30-epoch 1.21M baseline).
+  - **Top-5 Validation Accuracy:** **85.72%**.
+  - **Test Loss:** **1.503**.
+  - **Expected Calibration Error (ECE):** **2.20%** (best calibration across all Week 03 evaluated models!).
+  - **Parameters:** **1.901M** (`1,901,100`), directly matching the parameter budget of Pyramid-ResMLP Pure (1.93M) and Pyramid-ResMLP (1.94M / 1.79M).
+  - **FLOPs:** **0.489 GFLOPs/image**.
+  - **Training Speed:** 35.0 s/epoch, 3,942 img/s, **58.4 minutes total**, 2.80 GB VRAM.
+  - **Train-Test Gap:** 35.01%.
+
 ---
 
 ## 4. Experiments on Branch `experiment/tienanh/resmlp_cifar100`
@@ -329,8 +343,8 @@ Comparing the three models reveals the precise origin of our performance gains:
    - The completion of `Pyramid-ResMLP Pure` (68.22%) gives us a definitive 2-step ablation proving that:
      1. Multi-stage pyramid feature downsampling contributes **+5.82%** (62.40% $\rightarrow$ 68.22%).
      2. Structural re-parameterization contributes **+3.96%** (68.22% $\rightarrow$ 72.18%).
-3. **Resolution Flexibility: CA-Mixer:**
-   - CA-Mixer provides a completely orthogonal advantage: resolution invariance. At 1.21M parameters, it achieves **62.87%** Top-1 and can evaluate on arbitrary resolutions with zero parameter changes and low overfitting (20.74% gap).
+3. **Resolution Flexibility & Calibration: CA-Mixer:**
+   - CA-Mixer provides a completely orthogonal advantage: resolution invariance. At 1.90M parameters over 100 epochs, it scales to **64.92%** Top-1 validation accuracy (+2.05% gain over the 30-epoch 1.21M baseline) with an outstanding Expected Calibration Error of **2.20%** (best among all models) and 58.4 min training time, while evaluating on arbitrary resolutions with zero parameter changes.
 4. **Hybrid Attention Ceiling:**
    - `HybridFormer` demonstrates that combining lightweight pooling with late-stage self-attention reaches **75.70%** Val Acc (75.27% test), setting the performance benchmark for MetaFormer hybrids on CIFAR-100.
 

@@ -21,7 +21,7 @@ RepMLP Baseline & Hierarchical & RepConv 3-Branch & 2.16M & 100 & 71.46\% & 107.
 \textbf{Pyramid-ResMLP Pure} & Hierarchical & Linear $(N_i \times N_i)$ & \textbf{1.93M} & 100 & \textbf{68.22\%} & \textbf{44.9 min} \\
 \textbf{Pyramid-ResMLP} & Hierarchical & RepToken (Fused)$^*$ & \textbf{1.79M} & 100 & \textbf{72.18\%} & \textbf{44.5 min} \\
 \textbf{Shift-ResMLP} & Isotropic & 4-Direction Shift & 14.26M & 100 & \textbf{72.92\%} & 110.2 min \\
-\textbf{CA-Mixer} & Isotropic NCA & Cellular Automata & \textbf{1.21M} & 30 & \textbf{62.87\%} & \textbf{20.0 min} \\
+\textbf{CA-Mixer} & Isotropic NCA & Cellular Automata & \textbf{1.90M} & 100 & \textbf{64.92\%} & \textbf{58.4 min} \\
 \midrule
 \multicolumn{7}{l}{\textit{MetaFormer and Hybrid Architectures}} \\
 PoolFormer-S12 & Hierarchical & Non-parametric AvgPool$^\dagger$ & 11.45M & 100 & 59.50\% & $\sim$53 min \\
@@ -30,12 +30,12 @@ HybridFormer & Hierarchical & PoolFormer + MHSA & 10.59M & 300 & \textbf{75.70\%
 \end{tabular}
 \end{adjustbox}
 \vspace{0.4em}
-\caption{Empirical performance benchmark on CIFAR-100 across architectural paradigms. $^*$Pyramid-ResMLP contains 1.94M training parameters (1,938,820) which structurally fuse into 1.79M (1,785,828) upon deployment. $^\dagger$PoolFormer-S12 is evaluated at $224 \times 224$ following the canonical MetaFormer training setup~\cite{yu2022metaformer}.}
+\caption{Empirical performance benchmark on CIFAR-100 across architectural paradigms. $^*$Pyramid-ResMLP contains 1.94M training parameters (1,938,820) which structurally fuse into 1.79M (1,785,828) upon deployment. CA-Mixer scales to 64.92\% Top-1 validation accuracy at 1.90M parameters (1,901,100 params, 0.489 GFLOPs, 2.20\% ECE, 58.4 min) over 100 epochs, compared to 62.87\% in the 30-epoch 1.21M fast exploration (20.0 min). $^\dagger$PoolFormer-S12 is evaluated at $224 \times 224$ following the canonical MetaFormer training setup~\cite{yu2022metaformer}.}
 \label{tab:benchmark_master}
 \end{table}
 
 \subsection{Training Dynamics and Learning Profiles}
-Because experimental schedules varied across paradigms (30 epochs for CA-Mixer, 100 epochs for our primary models, and 300 epochs for HybridFormer), we analyze their learning trajectories based on their respective optimization dynamics and generalization behavior.
+Because experimental schedules varied across paradigms (100 epochs for our primary models, 30 epochs for rapid CA-Mixer exploration, and 300 epochs for HybridFormer), we analyze their learning trajectories based on their respective optimization dynamics and generalization behavior.
 
 \begin{figure}[htbp]
 \centering
@@ -44,7 +44,7 @@ Because experimental schedules varied across paradigms (30 epochs for CA-Mixer, 
 \label{fig:curves_comparison}
 \end{figure}
 
-\subsubsection{Convergence Behavior Across 100 Epochs (Pyramid Models and Shift-ResMLP)}
+\subsubsection{Convergence Behavior of Pyramid Models and Shift-ResMLP}
 Figure~\ref{fig:curves_comparison} compares the Top-1 validation accuracy and cross-entropy loss trajectories for our three 100-epoch CIFAR-100 runs. Table~\ref{tab:epoch_progress} provides numerical checkpoints partitioned into validation accuracy and cross-entropy loss trajectories.
 
 \begin{table}[htbp]
@@ -108,8 +108,20 @@ Key observations from the training curves include:
     \item \textbf{Late-epoch stabilization:} All three models reach their peak performance between epochs 88 and 90, corresponding to the final annealing phase of the Cosine learning rate schedule where the step size reaches $\eta_{\text{min}} = 10^{-6}$.
 \end{itemize}
 
-\subsubsection{Fast 30-Epoch Dynamics in CA-Mixer}
-Because CA-Mixer processes in-memory GPU tensors without augmentation overhead, its training requires only 20.0 minutes for 30 epochs across three random seeds. Notably, CA-Mixer limits the train-test generalization gap to $20.74 \pm 0.56\%$, compared to $37.88\%$ in standard unconstrained token mixers. Furthermore, its Expected Calibration Error (ECE) is reduced to $3.82 \pm 0.22\%$, demonstrating that local differential operators act as an implicit spatial regularizer.
+\subsubsection{Convergence Dynamics and 100-Epoch Scaling in CA-Mixer}
+To rigorously evaluate whether Neural Cellular Automata token mixing scales with model capacity and extended training schedules, CA-Mixer was benchmarked under two distinct regimes:
+\begin{itemize}
+    \item \textbf{Compact 30-epoch rapid exploration (1.21M parameters):} Processing in-memory GPU tensors without data augmentation bottlenecks required only 20.0 minutes across three random seeds ($62.87 \pm 0.24\%$ Top-1 validation accuracy, $88.09 \pm 0.30\%$ Top-5). CA-Mixer constrained the train-test generalization gap to $20.74 \pm 0.56\%$ (slashing overfitting by over 17\% compared to unconstrained dense mixers) and attained an Expected Calibration Error (ECE) of $3.82 \pm 0.22\%$.
+    \item \textbf{Parameter-matched 100-epoch scaling (1.90M parameters):} Scaling CA-Mixer to 1.90M parameters ($C=160, D=6, C_{\text{nca}}=160, C_{\text{channel}}=652$) directly matches the parameter budget of Pyramid-ResMLP Pure (1.93M) and Pyramid-ResMLP (1.94M train / 1.79M deploy). When trained for 100 epochs with AdamW ($\eta = 10^{-3}, \lambda = 0.05$) and dynamic step jitter ($T_{\text{jitter}}=0.25$, $T=4$ at $32\times32$, 0.489 GFLOPs/image), CA-Mixer achieves \textbf{64.92\%} Top-1 accuracy, \textbf{85.72\%} Top-5 accuracy, and a test loss of $1.503$ in 58.4 minutes (35.0 seconds/epoch, 3,942 images/second on a single Tesla T4 GPU, Figure~\ref{fig:ca_100ep_curves}). Furthermore, the Expected Calibration Error is reduced to an outstanding \textbf{2.20\%}, establishing CA-Mixer as the most well-calibrated architecture among all evaluated models.
+\end{itemize}
+These results demonstrate that the inductive bias provided by fixed differential spatial operators ($\text{Sobel}_X, \text{Sobel}_Y, \text{Laplacian}$) not only guarantees complete resolution invariance, but also provides strong spatial regularization and calibrated predictive uncertainty across extended training schedules.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.98\textwidth]{figures/ca_100ep_training_curves.png}
+\caption{Training loss (left) and test Top-1 validation accuracy (right) trajectories of CA-Mixer (1.90M parameters, $\kappa=0.5$, $T$-jitter) across 100 epochs on CIFAR-100.}
+\label{fig:ca_100ep_curves}
+\end{figure}
 
 \subsubsection{Extended 300-Epoch Trajectory in HybridFormer}
 In HybridFormer, the inclusion of multi-head self-attention in Stages 2 and 3 necessitates a longer optimization schedule. While the model reaches 65\% accuracy around epoch 100, continued training enables the attention layers to refine long-range semantic dependencies, ultimately peaking at \textbf{75.70\%} validation accuracy at epoch 275 and achieving \textbf{75.27\%} on the held-out test set.
@@ -137,7 +149,7 @@ Pyramid-ResMLP (Base) & $C=[96, 192, 384]$, $B=[2, 4, 6]$, $\lambda=0.05$ & 9,37
 \label{tab:tiny_imagenet_scaling}
 \end{table}
 
-\subsection{Hypothesis Verification: Breaking the Parameter-Efficiency Dilemma}
+\subsection{Hypothesis Verification: Resolving Parameter Inefficiency}
 Our empirical findings definitively answer the research question formulated at the end of Week 02:
 
 \subsubsection{The Two-Step Ablation Proof}

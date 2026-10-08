@@ -16,7 +16,7 @@ We have prepared two technical questions for our assigned Teaching Assistant:
 \textbf{Q1: Synthesizing Hierarchical Pyramids with Parameter-Free Spatial Shifts} \\
 Our Week 03 benchmarks revealed two major insights:
 \begin{enumerate}
-    \item \textit{Pyramid-ResMLP} reduces model size to 1.79M deployable parameters by progressively contracting token dimensions across stages ($16*16 \rightarrow 8*8 \rightarrow 4*4$).
+    \item \textit{Pyramid-ResMLP} achieves 1.79M deployable parameters by contracting token resolutions across stages ($16 \times 16 \rightarrow 8 \times 8 \rightarrow 4 \times 4$).
     \item \textit{Shift-ResMLP} achieves 72.92\% validation accuracy with strictly zero learnable parameters in the spatial mixing branch via 4-direction coordinate channel shifts.
 \end{enumerate}
 Does the TA recommend replacing the $\text{Linear}(N_i, N_i)$ matrices in each stage of our pyramid architecture with parameter-free 4-direction coordinate shifts (yielding a hybrid \textit{Pyramid-Shift-ResMLP})? Would this architecture retain sufficient representational capacity on Tiny-ImageNet ($64*64$) while achieving extreme parameter efficiency?

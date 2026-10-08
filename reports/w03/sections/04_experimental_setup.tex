@@ -32,9 +32,9 @@ Because our team explored multiple architectural paradigms in parallel, individu
 
 \textbf{Shift-ResMLP} was executed on a dedicated single-GPU CUDA environment using our standardized training engine. To comfortably fit the 12-block columnar architecture ($D=384$) in device memory, the per-device batch size was set to 128 over 100 epochs, utilizing identical AdamW optimization, Cosine schedule ($\eta = 10^{-3} \rightarrow 10^{-6}$), and vision augmentations.
 
-\textbf{CA-Mixer} was implemented in \texttt{src/notebooks/ca\_mixer\_vs\_mlp\_mixer.ipynb}. To eliminate CPU-GPU data transfer overhead during recurrent cellular iterations, the entire CIFAR-100 dataset was preloaded directly into GPU VRAM. Fast on-device tensor augmentations (GPU Random Crop with reflection padding 4, and Horizontal Flip) were applied. Because the NCA dynamics converge rapidly, CA-Mixer was trained for 30 epochs (with 2 linear warmup epochs) across three distinct seeds ($0, 1, 2$) with batch size 256.
+\textbf{CA-Mixer} was implemented in \texttt{src/notebooks/ca\_mixer\_vs\_mlp\_mixer.ipynb} and evaluated on an NVIDIA Tesla T4 GPU. In addition to initial 30-epoch rapid exploratory runs ($1.21$M parameters, 3 seeds), CA-Mixer was systematically scaled to a parameter-matched configuration containing \textbf{1.90M parameters} ($C=160, D=6, C_{\text{nca}}=160, C_{\text{channel}}=652$) and trained for \textbf{100 epochs} (5 linear warmup epochs) with batch size 256, AdamW optimizer ($\eta = 10^{-3}$, $\lambda=0.05$), label smoothing $\epsilon=0.1$, step-budget ratio $\kappa=0.5$ ($T = \lceil 0.5 \times \max(H, W) \rceil = 4$ steps at $32\times32$), $T$-jitter of $0.25$, and update probability $0.8$ under AMP FP16. In-memory GPU tensor execution eliminated CPU data transfer overhead, maintaining a throughput of 3,942 images/second (35.0 seconds/epoch, 58.4 minutes total).
 
-\textbf{PoolFormer-S12} was executed on Kaggle using 2x NVIDIA T4 GPUs under PyTorch Distributed Data Parallel (\texttt{torch.distributed.run}). To maintain fidelity with the original MetaFormer paper~\cite{yu2022metaformer}, CIFAR-100 images were resized to $224*224$ via bicubic interpolation. Training ran for 100 epochs (5 warmup epochs) with a global batch size of 64 and a base learning rate scaled to $6.25*10^{-5}$ following the linear scaling rule ($10^{-3} \times 64 / 1024$). Vision augmentations followed the AutoAugment CIFAR-10 policy with Random Erasing ($0.25$), Mixup ($\alpha=0.8$), and CutMix ($\alpha=1.0$).
+\textbf{PoolFormer-S12} was executed on Kaggle using 2x NVIDIA T4 GPUs under PyTorch Distributed Data Parallel (DDP). To maintain fidelity with the original MetaFormer paper~\cite{yu2022metaformer}, CIFAR-100 images were resized to $224*224$ via bicubic interpolation. Training ran for 100 epochs (5 warmup epochs) with a global batch size of 64 and a base learning rate scaled to $6.25*10^{-5}$ following the linear scaling rule ($10^{-3} \times 64 / 1024$). Vision augmentations followed the AutoAugment CIFAR-10 policy with Random Erasing ($0.25$), Mixup ($\alpha=0.8$), and CutMix ($\alpha=1.0$).
 
 \textbf{HybridFormer} was executed on Kaggle using 2x NVIDIA T4 GPUs under DDP at native $32*32$ resolution. Due to the integration of multi-head self-attention in Stages 3 and 4, the model was trained for an extended schedule of 300 epochs (5 warmup epochs) with batch size 256, initial learning rate $5*10^{-4}$, and DropPath $0.10$.
 
@@ -51,24 +51,24 @@ Because our team explored multiple architectural paradigms in parallel, individu
 \midrule
 Target Dataset & CIFAR-100 & CIFAR-100 & CIFAR-100 & CIFAR-100 \\
 Input Resolution & $32 \times 32$ & $32 \times 32$ & $32 \times 32$ & $32 \times 32$ \\
-Total Epochs & 100 & 100 & 100 & 30 \\
+Total Epochs & 100 & 100 & 100 & 100 \\
 Batch Size & 256 & 256 & 128 & 256 \\
 Optimizer & AdamW & AdamW & AdamW & AdamW \\
 Initial Learning Rate ($\eta$) & $10^{-3}$ & $10^{-3}$ & $10^{-3}$ & $10^{-3}$ \\
 LR Schedule & Cosine (to $10^{-6}$) & Cosine (to $10^{-6}$) & Cosine (to $10^{-6}$) & Cosine (to $10^{-6}$) \\
-Warmup Epochs & 0 & 0 & 0 & 2 \\
+Warmup Epochs & 0 & 0 & 0 & 5 \\
 Weight Decay ($\lambda$) & 0.05 & 0.05 & 0.05 & 0.05 \\
 Gradient Clipping & Norm 1.0 & Norm 1.0 & Norm 1.0 & Norm 1.0 \\
 Data Augmentation & RandAugment, Erasing, Jitter & RandAugment, Erasing, Jitter & RandAugment, Erasing, Jitter & GPU Crop, HFlip \\
 Mixup / CutMix ($\alpha_1, \alpha_2$) & 0.8 / 1.0 & 0.8 / 1.0 & 0.8 / 1.0 & None \\
 Label Smoothing ($\epsilon$) & 0.1 & 0.1 & 0.1 & 0.1 \\
 DropPath Rate & None & None & None & None \\
-Compute Hardware & 2$\times$ GPUs (DDP) & 2$\times$ GPUs (DDP) & 1$\times$ CUDA GPU & 1$\times$ CUDA GPU (in-memory) \\
+Compute Hardware & 2$\times$ GPUs (DDP) & 2$\times$ GPUs (DDP) & 1$\times$ CUDA GPU & 1$\times$ Tesla T4 (in-memory) \\
 Mixed Precision & AMP FP16 & AMP FP16 & AMP FP16 & AMP FP16 \\
 \bottomrule
 \end{tabularx}
 \vspace{0.3em}
-\caption{Primary Vision MLP candidates on CIFAR-100.}
+\caption{Primary Vision MLP candidates on CIFAR-100 (CA-Mixer listed at 100-epoch scaled configuration; initial exploration evaluated at 30 epochs with 2 warmup epochs).}
 \label{tab:hyperparams_mlps}
 \end{subtable}
 

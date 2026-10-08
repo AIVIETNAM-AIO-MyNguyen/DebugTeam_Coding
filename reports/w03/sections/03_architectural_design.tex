@@ -243,7 +243,7 @@ where $\mathbf{p}$ is the concatenated perception representation of dimension $3
 \mathbf{h}_{t+1} = \mathbf{h}_t + \mathbf{m} \odot \mathbf{d}_t.
 \end{equation}
 
-\textbf{Resolution invariance property} ensures that because all perception and update operators are local 2D convolutions, the parameter count is completely decoupled from the spatial resolution $H \times W$. The model requires exactly 1,207,524 parameters whether evaluated on $32*32$, $64*64$, or $128*128$ (Figure~\ref{fig:ca_scaling}).
+\textbf{Resolution invariance property} ensures that because all perception and update operators are local 2D convolutions, the parameter count is completely decoupled from the spatial resolution $H \times W$. The compact model maintains exactly 1.21M parameters (1,207,524) while the scaled parameter-matched model maintains exactly 1.90M parameters (1,901,100) whether evaluated on $32*32$, $64*64$, or $128*128$ (Figure~\ref{fig:ca_scaling}).
 
 \subsection{MetaFormer and Hybrid Paradigms: PoolFormer-S12 and HybridFormer}
 \label{subsection:poolformer_hybridformer}
