@@ -62,6 +62,23 @@
     \renewcommand{\abstractname}{Abstract}%
 }
 
+% Float layout and whitespace tightening
+\makeatletter
+\setlength{\@fptop}{0pt}
+\setlength{\@fpsep}{12pt plus 2pt minus 2pt}
+\setlength{\@fpbot}{0pt plus 1fil}
+\makeatother
+
+\raggedbottom
+
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.95}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.75}
+\setlength{\floatsep}{10pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{12pt plus 2pt minus 2pt}
+\setlength{\intextsep}{10pt plus 2pt minus 2pt}
+
 \begin{document}
 \maketitle
 
@@ -78,16 +95,12 @@
 \newpage
 \input{sections/02_overview}
 
-\vspace{1em}
 \input{sections/03_architectural_design}
 
-\vspace{1em}
 \input{sections/04_experimental_setup}
 
-\vspace{1em}
 \input{sections/05_empirical_results}
 
-\vspace{1em}
 \input{sections/06_challenges_and_roadmap}
 
 \newpage
