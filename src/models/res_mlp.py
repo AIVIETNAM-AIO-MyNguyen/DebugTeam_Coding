@@ -231,11 +231,26 @@ class ResMLPLayer(nn.Module):
         self.token_mix.local_inject()
 
 
-def check_sizes(image_size: int, patch_size: int) -> Tuple[int, int, int]:
+class PatchSizes(int):
+    """
+    Subclass of int for backwards compatibility:
+    acts as integer num_patches, but unpacks into (num_patches, grid_h, grid_w).
+    """
+    def __new__(cls, num_patches: int, grid_h: int, grid_w: int):
+        obj = super().__new__(cls, num_patches)
+        obj.grid_h = grid_h
+        obj.grid_w = grid_w
+        return obj
+
+    def __iter__(self):
+        return iter((int(self), self.grid_h, self.grid_w))
+
+
+def check_sizes(image_size: int, patch_size: int) -> PatchSizes:
     sqrt_num_patches, remainder = divmod(image_size, patch_size)
     assert remainder == 0, "`image_size` must be divisible by `patch_size`"
     num_patches = sqrt_num_patches ** 2
-    return num_patches, sqrt_num_patches, sqrt_num_patches
+    return PatchSizes(num_patches, sqrt_num_patches, sqrt_num_patches)
 
 
 @register_model("res_mlp")
