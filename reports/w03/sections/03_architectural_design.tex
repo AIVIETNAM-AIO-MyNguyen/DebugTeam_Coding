@@ -204,8 +204,8 @@ CA-Mixer addresses the resolution-locking bottleneck inherent in vision MLPs (Fi
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/ca_mixer_arch.png}
-\caption{Macro-architecture of CA-Mixer and the Neural Cellular Automata (NCA) iterative perception and update dynamics.}
+\includegraphics[width=0.92\textwidth]{figures/ca-mixer_model_architecture.png}
+\caption{Macro-architecture and block design of CA-Mixer: patch embedding ($128 \times 8 \times 8$ tokens), CA-Mixer Block residual paths, and iterative Neural Cellular Automata (NCA) token mixer with frozen $3\times3$ depthwise Sobel/Laplacian perception kernels ($3C=384$), shared $1\times1$ conv MLP, and Bernoulli(0.8) stochastic update mask.}
 \label{fig:ca_mixer_arch}
 \end{figure}
 
