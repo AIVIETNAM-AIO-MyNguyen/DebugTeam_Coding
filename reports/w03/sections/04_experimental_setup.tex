@@ -40,11 +40,12 @@ Because our team explored multiple architectural paradigms in parallel, individu
 
 \textbf{Hyperparameter summary across paradigms:} To enable a direct and systematic side-by-side comparison across these diverse training setups, all architectural hyperparameters, optimization schedules, vision augmentation configurations, and hardware allocations are compiled in Table~\ref{tab:hyperparameters}.
 
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
+\scriptsize
+\renewcommand{\arraystretch}{0.88}
 \begin{subtable}{\textwidth}
 \centering
-\footnotesize
 \begin{tabularx}{\textwidth}{l | >{\centering\arraybackslash}X | >{\centering\arraybackslash}X | >{\centering\arraybackslash}X | >{\centering\arraybackslash}X}
 \toprule
 \textbf{Hyperparameter} & \textbf{Pyramid-ResMLP Pure} & \textbf{Pyramid-ResMLP} & \textbf{Shift-ResMLP} & \textbf{CA-Mixer} \\
@@ -67,16 +68,15 @@ Compute Hardware & 2$\times$ GPUs (DDP) & 2$\times$ GPUs (DDP) & 1$\times$ CUDA 
 Mixed Precision & AMP FP16 & AMP FP16 & AMP FP16 & AMP FP16 \\
 \bottomrule
 \end{tabularx}
-\vspace{0.3em}
+\vspace{0.15em}
 \caption{Primary Vision MLP candidates on CIFAR-100 (CA-Mixer listed at 100-epoch scaled configuration; initial exploration evaluated at 30 epochs with 2 warmup epochs).}
 \label{tab:hyperparams_mlps}
 \end{subtable}
 
-\vspace{0.6em}
+\vspace{0.15em}
 
 \begin{subtable}{\textwidth}
 \centering
-\footnotesize
 \begin{tabularx}{\textwidth}{l | >{\centering\arraybackslash}X | >{\centering\arraybackslash}X | >{\centering\arraybackslash}X}
 \toprule
 \textbf{Hyperparameter} & \textbf{PoolFormer-S12} & \textbf{HybridFormer} & \textbf{Pyramid-ResMLP (Scaled)} \\
@@ -99,12 +99,12 @@ Compute Hardware & 2$\times$ Kaggle T4 (DDP) & 2$\times$ Kaggle T4 (DDP) & 2$\ti
 Mixed Precision & AMP FP16 & AMP FP16 & AMP FP16 \\
 \bottomrule
 \end{tabularx}
-\vspace{0.3em}
+\vspace{0.15em}
 \caption{MetaFormer baselines and scaled high-resolution benchmark.}
 \label{tab:hyperparams_baselines}
 \end{subtable}
-\vspace{0.4em}
+\vspace{-0.9em}
+\captionsetup{skip=2pt}
 \caption{Comprehensive hyperparameter and training setup comparison across all models investigated in Week 03, partitioned into (a) primary Vision MLP candidates on CIFAR-100 and (b) MetaFormer baselines and scaled high-resolution benchmarks.}
 \label{tab:hyperparameters}
 \end{table}
-\clearpage

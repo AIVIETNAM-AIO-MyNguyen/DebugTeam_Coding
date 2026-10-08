@@ -211,19 +211,20 @@ CA-Mixer addresses the resolution-locking bottleneck inherent in vision MLPs (Fi
 
 \begin{figure}[htbp]
 \centering
-\begin{subfigure}[b]{0.48\textwidth}
+\begin{subfigure}[b]{0.92\textwidth}
     \centering
     \includegraphics[width=\textwidth]{figures/fig_complexity.png}
     \caption{Parameter and FLOPs scaling vs. resolution.}
     \label{fig:ca_complexity}
 \end{subfigure}
-\hfill
-\begin{subfigure}[b]{0.48\textwidth}
+\vspace{0.5em}
+\begin{subfigure}[b]{0.65\textwidth}
     \centering
     \includegraphics[width=\textwidth]{figures/fig_resolution.png}
     \caption{Zero-shot accuracy across resolutions.}
     \label{fig:ca_resolution}
 \end{subfigure}
+\vspace{0.3em}
 \caption{Resolution invariance characteristics of CA-Mixer: constant parameter scaling and robust zero-shot accuracy under native resolution variations.}
 \label{fig:ca_scaling}
 \end{figure}
