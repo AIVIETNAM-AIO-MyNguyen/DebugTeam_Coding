@@ -157,3 +157,56 @@ def test_pyramid_res_mlp_drop_path_and_dropout():
         out_fused = model(x)
     diff = (out_train_mode - out_fused).abs().max().item()
     assert diff < 1e-4, f"Locality injection mismatch with drop_path: max diff = {diff}"
+
+
+def test_pyramid_res_mlp_non_overlapping_stem():
+    """Verify PyramidResMLP functions with non-overlapping patch embedding stem."""
+    model = PyramidResMLP(
+        image_size=64,
+        patch_size=4,
+        num_classes=200,
+        channels=(32, 64, 128),
+        num_blocks=(2, 2, 2),
+        overlapping=False,
+    )
+    x = torch.randn(2, 3, 64, 64)
+    out = model(x)
+    assert out.shape == (2, 200)
+
+
+def test_pyramid_res_mlp_branch_ablation_variants():
+    """Verify single-branch (3x3 only) and empty branch (pure linear) re-parameterization."""
+    # 3x3 only
+    model_3x3 = PyramidResMLP(
+        image_size=32,
+        patch_size=2,
+        num_classes=10,
+        channels=(32, 64, 128),
+        num_blocks=(1, 1, 1),
+        reparam_conv_k=(3,),
+    )
+    model_3x3.eval()
+    x = torch.randn(2, 3, 32, 32)
+    with torch.no_grad():
+        out_train = model_3x3(x)
+    model_3x3.locality_injection()
+    with torch.no_grad():
+        out_fused = model_3x3(x)
+    assert (out_train - out_fused).abs().max().item() < 1e-4
+
+    # Empty branch
+    model_pure = PyramidResMLP(
+        image_size=32,
+        patch_size=2,
+        num_classes=10,
+        channels=(32, 64, 128),
+        num_blocks=(1, 1, 1),
+        reparam_conv_k=(),
+    )
+    model_pure.eval()
+    with torch.no_grad():
+        out_train_pure = model_pure(x)
+    model_pure.locality_injection()
+    with torch.no_grad():
+        out_fused_pure = model_pure(x)
+    assert (out_train_pure - out_fused_pure).abs().max().item() < 1e-4

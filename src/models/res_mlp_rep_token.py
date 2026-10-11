@@ -64,18 +64,19 @@ class RepTokenMixLayer(nn.Module):
         else:
             self.fc1 = nn.Linear(patches, patches)
             self.conv_branches = nn.ModuleList()
-            for k in reparam_conv_k:
-                conv = nn.Conv2d(
-                    in_channels=features,
-                    out_channels=features,
-                    kernel_size=k,
-                    stride=1,
-                    padding=k // 2,
-                    groups=features,
-                    bias=False,
-                )
-                bn = nn.BatchNorm2d(features)
-                self.conv_branches.append(nn.Sequential(conv, bn))
+            if reparam_conv_k:
+                for k in reparam_conv_k:
+                    conv = nn.Conv2d(
+                        in_channels=features,
+                        out_channels=features,
+                        kernel_size=k,
+                        stride=1,
+                        padding=k // 2,
+                        groups=features,
+                        bias=False,
+                    )
+                    bn = nn.BatchNorm2d(features)
+                    self.conv_branches.append(nn.Sequential(conv, bn))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x: (B, N, C)
@@ -89,9 +90,12 @@ class RepTokenMixLayer(nn.Module):
             x_spatial = torch.einsum("bcn,cmn->bcm", x_trans, self.fused_weight) + self.fused_bias
         else:
             global_out = self.fc1(x_trans)  # (B, C, N)
-            x_2d = x_trans.reshape(-1, self.features, self.Hp, self.Wp)
-            conv_out = sum(branch(x_2d) for branch in self.conv_branches).flatten(2)
-            x_spatial = global_out + conv_out
+            if len(self.conv_branches) > 0:
+                x_2d = x_trans.reshape(-1, self.features, self.Hp, self.Wp)
+                conv_out = sum(branch(x_2d) for branch in self.conv_branches).flatten(2)
+                x_spatial = global_out + conv_out
+            else:
+                x_spatial = global_out
 
         x = self.aff2(x_spatial.transpose(1, 2))  # (B, N, C)
         return residual + self.drop_path(x)
@@ -125,8 +129,8 @@ class RepTokenMixLayer(nn.Module):
                 W_conv[c] += m
                 b_conv[c] += b[c].repeat(N)
 
-        W_deploy = self.fc1.weight.unsqueeze(0) + W_conv  # (C, N, N)
-        b_deploy = self.fc1.bias.unsqueeze(0) + b_conv    # (C, N)
+        W_deploy = self.fc1.weight.unsqueeze(0).expand(C, -1, -1).clone() + W_conv  # (C, N, N)
+        b_deploy = self.fc1.bias.unsqueeze(0).expand(C, -1).clone() + b_conv        # (C, N)
 
         self.register_buffer("fused_weight", W_deploy)
         self.register_buffer("fused_bias", b_deploy)

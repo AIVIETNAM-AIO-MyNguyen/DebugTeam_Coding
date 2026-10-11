@@ -37,11 +37,20 @@ class OverlappingPatchEmbed(nn.Module):
         in_channels: int = 3,
         out_channels: int = 64,
         patch_size: int = 2,
+        overlapping: bool = True,
+        stem_kernel: Optional[int] = None,
     ):
         super().__init__()
         self.patch_size = patch_size
+        self.overlapping = overlapping
 
-        if patch_size == 2:
+        if not overlapping:
+            # Standard non-overlapping patch embedding (e.g. 4x4 stride 4, padding 0)
+            self.proj = nn.Conv2d(in_channels, out_channels, kernel_size=patch_size, stride=patch_size, padding=0)
+        elif stem_kernel is not None:
+            pad = (stem_kernel - patch_size + 1) // 2 if stem_kernel > patch_size else 0
+            self.proj = nn.Conv2d(in_channels, out_channels, kernel_size=stem_kernel, stride=patch_size, padding=pad)
+        elif patch_size == 2:
             # 2x downsample with 1-pixel overlap (e.g. 32x32 -> 16x16)
             self.proj = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=2, padding=1)
         elif patch_size == 4:
@@ -156,6 +165,8 @@ class PyramidResMLP(BaseClassifier):
         reparam_conv_k: Sequence[int] = (1, 3),
         drop_path_rate: float = 0.0,
         dropout: float = 0.0,
+        overlapping: bool = True,
+        stem_kernel: Optional[int] = None,
         deploy: bool = False,
         **kwargs,
     ):
@@ -166,6 +177,11 @@ class PyramidResMLP(BaseClassifier):
         if "drop_path" in kwargs and drop_path_rate == 0.0:
             drop_path_rate = float(kwargs["drop_path"])
 
+        if "overlapping" in kwargs:
+            overlapping = bool(kwargs["overlapping"])
+        if "stem_kernel" in kwargs:
+            stem_kernel = kwargs["stem_kernel"]
+
         self.image_size = image_size
         self.patch_size = patch_size
         self.num_classes = num_classes
@@ -173,11 +189,13 @@ class PyramidResMLP(BaseClassifier):
         self.drop_path_rate = drop_path_rate
         self.deploy = deploy
 
-        # 1. Overlapping Patch Embedding (Stem)
+        # 1. Patch Embedding (Stem: Overlapping or Non-Overlapping)
         self.patch_embed = OverlappingPatchEmbed(
             in_channels=in_channels,
             out_channels=channels[0],
             patch_size=patch_size,
+            overlapping=overlapping,
+            stem_kernel=stem_kernel,
         )
 
         curr_H = image_size // patch_size
