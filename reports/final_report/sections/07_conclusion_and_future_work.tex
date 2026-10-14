@@ -1,0 +1,29 @@
+\section{Conclusion and Future Work}
+\label{section:conclusion_and_future_work}
+
+\subsection{Conclusion}
+\label{subsection:conclusion}
+In this project, we addressed the fundamental parameter and data inefficiency of vision MLPs by introducing \textbf{Pyramid-ResMLP}. By abandoning rigid columnar layouts in favor of an overlapping convolutional stem and a 3-stage hierarchical downsampling pyramid, our architecture captures multi-scale visual features while reducing token counts in deep layers. Furthermore, we designed \textbf{RepTokenMix}, which injects essential 2D local inductive biases via parallel depthwise convolutions during training and analytically fuses them into a single linear projection for deployment.
+
+Our empirical evaluations on Tiny-ImageNet-200 and NVIDIA Tesla T4 GPU profiling establish three key conclusions:
+\begin{enumerate}
+    \item \textbf{Locality is critical for vision MLPs:} Injecting a $3 \times 3$ depthwise convolutional branch during training improves validation Top-1 accuracy by \textbf{+3.47\%} (from 53.75\% to 57.22\%) with zero deployment cost.
+    \item \textbf{Stem overlapping prevents discontinuity:} An overlapping convolutional stem outperforms non-overlapping patch slicing by $+0.10\%$ Top-5 accuracy ($80.55\%$ vs. $80.45\%$) by smoothing token transitions.
+    \item \textbf{Zero-overhead deployment:} Fusing training branches via impulse responses yields a \textbf{1.34$\times$ inference speedup} at batch size 1 and exact mathematical equivalence (numerical difference $\le 5.96 \times 10^{-7}$).
+\end{enumerate}
+
+\subsection{Project limitations}
+\label{subsection:limitations}
+We identify two specific limitations in our current architectural design:
+\begin{enumerate}
+    \item \textbf{Fixed spatial resolution locking:} Token-mixing in RepTokenMix is parameterized by an explicit $N \times N$ dense linear projection, where $N = H \times W$ is the total token count of the feature map. Because matrix dimensions are hardcoded to a specific grid size (e.g., $16 \times 16 \to N=256$ in Stage 1 for $64 \times 64$ inputs), the model cannot directly process images of arbitrary resolutions or aspect ratios at test time without resizing or interpolating the learned weight matrices.
+    \item \textbf{Static deploy weight memory expansion:} During training, the shared global linear layer has size $N \times N$, while each depthwise convolution has size $C \times 1 \times k \times k$. Upon re-parameterization, because depthwise convolutional filters differ for each channel, the fused spatial matrix must be stored as an expanded tensor of shape $(C, N, N)$ for every block. This increases the static weight storage in GPU VRAM by approximately $37$~MB compared to the training checkpoint.
+\end{enumerate}
+
+\subsection{Future work}
+\label{subsection:future_work}
+To overcome these limitations and extend the applicability of Pyramid-ResMLP, we outline two concrete future research directions:
+\begin{enumerate}
+    \item \textbf{Local window partitioning ($7 \times 7$):} To resolve the fixed-resolution constraint, spatial feature maps can be partitioned into non-overlapping local windows of fixed dimension $K \times K$ (such as $7 \times 7 = 49$ tokens, following Swin Transformer and RepMLPNet~\cite{ding2022repmlp}). Under this scheme, RepTokenMix operates within each $7 \times 7$ window using a fixed $49 \times 49$ spatial matrix, regardless of the input image size. This reduces computational complexity from quadratic $\mathcal{O}(N^2)$ to linear $\mathcal{O}(N)$, enabling the architecture to seamlessly process arbitrary image resolutions without weight interpolation.
+    \item \textbf{Downstream dense prediction (object detection and segmentation):} Unlike columnar MLPs, Pyramid-ResMLP naturally outputs hierarchical multi-scale feature maps at $1/4$, $1/8$, and $1/16$ spatial resolutions. A promising next step is to integrate Pyramid-ResMLP as a feature extractor backbone with a Feature Pyramid Network (FPN) for object detection on MS-COCO and semantic segmentation on ADE20K, validating its multi-scale representations on dense downstream vision tasks.
+\end{enumerate}

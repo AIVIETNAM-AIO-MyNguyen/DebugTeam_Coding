@@ -1,0 +1,32 @@
+\section{Introduction}
+\label{section:introduction}
+
+Convolutional Neural Networks (CNNs) have long served as the foundation of computer vision architectures. Their success relies heavily on two built-in inductive biases: \textit{locality} (pixels close to each other are strongly correlated) and \textit{translation equivariance} (features share the same representation regardless of spatial location). These properties allow CNNs to learn robust visual representations with high sample efficiency.
+
+Recently, Vision Multi-Layer Perceptrons (Vision MLPs), such as MLP-Mixer~\cite{tolstikhin2021mlp} and ResMLP~\cite{touvron2021resmlp}, demonstrated that pure linear layers can perform competitive image recognition without self-attention or convolutional operations. These models split feature processing into two decoupled steps:
+\begin{enumerate}
+    \item \textbf{Token mixing:} Linear projections across the spatial token dimension to allow cross-patch communication.
+    \item \textbf{Channel mixing:} Multi-layer perceptrons applied independently across the channel dimension to process intra-patch features.
+\end{enumerate}
+
+Despite their architectural simplicity, standard vision MLPs suffer from severe parameter inefficiency. For instance, in our baseline experiments on small-scale benchmarks, standard columnar ResMLP required over 2.19M parameters yet achieved poor accuracy compared to CNNs of similar capacity. This inefficiency arises from two fundamental architectural weaknesses:
+
+\begin{enumerate}
+    \item \textbf{Lack of a hierarchical multi-scale representation:} Standard MLPs adopt a columnar (isotropic) structure where the spatial resolution $N$ and channel dimension $C$ remain constant throughout the entire network. Unlike biological vision and modern deep networks that extract multi-scale pyramids (fine spatial details in shallow layers and coarse semantic concepts in deep layers), columnar MLPs process all tokens uniformly. Consequently, early layers waste computation on dense all-to-all token matrices over high-resolution feature maps.
+    \item \textbf{Absence of local spatial inductive bias:} In standard token mixing, the spatial projection matrix $W \in \mathbb{R}^{N \times N}$ connects every token to every other token. Because this matrix starts from random initialization, it must learn elementary local spatial relations (e.g., neighbor connectivity, edge continuity) entirely from training data. Without the inductive bias of locality, token-mixing MLPs struggle with small or moderate datasets and require extensive regularizations or massive pre-training datasets.
+\end{enumerate}
+
+To address these two limitations, we introduce \textbf{Pyramid-ResMLP}, an efficient hierarchical vision MLP architecture. Pyramid-ResMLP incorporates three core design principles:
+\begin{itemize}
+    \item \textbf{Hierarchical multi-stage downsampling:} We divide the network into three distinct stages. Between stages, strided patch embedding layers progressively reduce the spatial token count ($16 \times 16 \to 8 \times 8 \to 4 \times 4$) while doubling the channel capacity ($128 \to 256 \to 512$). This creates a multi-scale pyramid that captures both local textures and global semantic context efficiently.
+    \item \textbf{Overlapping convolutional stem:} Instead of non-overlapping patch slicing, we employ a two-layer overlapping convolutional stem ($7 \times 7$ followed by $3 \times 3$) to extract initial token representations. This prevents artificial boundary discontinuities and enhances spatial coherence across adjacent patches.
+    \item \textbf{Structural re-parameterization via RepTokenMix:} During training, our token-mixing module combines a global fully-connected projection with parallel local depthwise convolutions ($3 \times 3$ and $1 \times 1$). This injects strong local inductive bias directly into the gradient flow. Before deployment, we analytically fuse all parallel convolutional branches into the global linear matrix using the impulse response property of linear time-invariant operators. At test time, the model executes as a single linear layer, incurring \textbf{zero additional inference latency, zero extra FLOPs, and zero computational overhead}.
+\end{itemize}
+
+\subsection{Summary of empirical contributions}
+In this report, we thoroughly evaluate Pyramid-ResMLP on the Tiny-ImageNet-200 benchmark and profile its execution on an NVIDIA Tesla T4 GPU. Our key findings are:
+\begin{enumerate}
+    \item \textbf{Empirical proof of locality:} Adding a local $3 \times 3$ depthwise branch during training yields a $+3.47\%$ absolute gain in validation Top-1 accuracy ($57.22\%$ vs. $53.75\%$) over the pure linear baseline, proving that localized spatial routing is vital for vision MLPs.
+    \item \textbf{Stem overlapping advantage:} An overlapping stem achieves $80.55\%$ Top-5 accuracy compared to $80.45\%$ for a non-overlapping patch projection, verifying improved edge continuity.
+    \item \textbf{Zero-overhead inference:} We prove that the deployed model achieves identical predictions to the training model, with a maximum absolute output difference $\le 5.96 \times 10^{-7}$ (exact within FP32 machine precision). In practice, structural re-parameterization reduces inference latency from 3.80~ms to 2.83~ms at batch size 1, delivering a \textbf{1.34$\times$ speedup}.
+\end{enumerate}

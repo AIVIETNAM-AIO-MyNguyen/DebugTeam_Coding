@@ -1,0 +1,28 @@
+\section{Related Work}
+\label{section:related_work}
+
+This section reviews the research foundation underlying our proposed architecture, categorized into three key areas: token-mixing MLP architectures, hierarchical multi-scale designs, and structural re-parameterization.
+
+\subsection{Token-mixing and vision MLP architectures}
+\label{subsection:vision_mlps}
+Standard Vision Transformers rely on multi-head self-attention mechanisms to model relationships across spatial patches. To investigate whether self-attention is indispensable, MLP-Mixer~\cite{tolstikhin2021mlp} proposed an architecture composed entirely of multi-layer perceptrons. MLP-Mixer decomposes spatial vision processing into two alternating operations: channel-mixing MLPs, which operate across channel dimensions independently for each patch, and token-mixing MLPs, which apply linear projections across transposed spatial tokens to allow global communication.
+
+ResMLP~\cite{touvron2021resmlp} simplified this formulation by replacing the two-layer token-mixing MLP with a single linear projection ($W \in \mathbb{R}^{N \times N}$) and substituting complex normalization layers with affine transformations. This design proved that feedforward linear networks can learn visual representations with stable optimization and high data efficiency.
+
+However, both MLP-Mixer and ResMLP are columnar (isotropic) networks. The number of tokens $N$ and the channel dimension $C$ remain fixed across all blocks. Furthermore, their token-mixing layers use dense unconstrained matrices that have no prior knowledge of spatial 2D topography. Every token interacts with every other token equally at initialization, forcing the model to expend substantial parameter capacity and optimization effort merely to learn adjacent pixel proximity.
+
+\subsection{Hierarchical multi-scale vision architectures}
+\label{subsection:hierarchical_architectures}
+Biological visual processing and traditional computer vision rely on multi-scale representations: shallow layers capture high-frequency edges and fine textures at high spatial resolution, while deeper layers capture low-frequency semantic structures over larger spatial regions.
+
+The significance of macro-architectural design was systematically investigated by PoolFormer~\cite{yu2022metaformer}. Yu et al.\ demonstrated that the general hierarchical framework---consisting of an initial stem, multi-stage spatial downsampling, and progressive channel expansion---is the primary driver of performance in modern vision models. Remarkably, even when the complex token-mixing module was replaced by a parameter-free local average pooling operation, the resulting PoolFormer model achieved competitive accuracy on ImageNet classification.
+
+Following the core insight of PoolFormer~\cite{yu2022metaformer}, our Pyramid-ResMLP departs from columnar MLP designs. Instead of keeping token dimensions static, we organize the network into a three-stage pyramid. At each stage transition, spatial dimensions are halved while channel capacity is doubled, creating a natural multi-scale feature representation that matches the physical geometry of natural images.
+
+\subsection{Structural re-parameterization}
+\label{subsection:structural_reparameterization}
+A fundamental challenge in deep network design is the tension between training performance and inference efficiency. Multi-branch architectures often train better because diverse branches provide ensemble-like representations and facilitate gradient propagation. However, multiple parallel branches increase GPU memory access overhead, cause kernel launch delays, and slow down real-time deployment.
+
+Structural re-parameterization resolves this conflict by decoupling the training-time architecture from the inference-time architecture. RepMLPNet~\cite{ding2022repmlp} introduced re-parameterized locality for vision MLPs. During training, RepMLPNet places local depthwise convolutional branches in parallel with global fully-connected layers. Because depthwise convolution and fully-connected projections are both linear operations, the trained convolutional kernels can be mathematically mapped into an equivalent dense linear matrix using the system's impulse response. At test time, all auxiliary branches are folded into a single matrix, eliminating all multi-branch overhead during deployment.
+
+In this work, we build upon the locality re-parameterization principles established in RepMLPNet~\cite{ding2022repmlp} to construct \textbf{RepTokenMix}. We integrate this re-parameterization directly into each stage of our hierarchical pyramid, providing explicit local inductive bias during training while collapsing to pure linear projection at inference time.

@@ -1,0 +1,70 @@
+\section{Appendix}
+\label{section:appendix}
+
+\subsection{Analytical Derivation of Impulse Response Re-parameterization}
+\label{appendix:reparam_derivation}
+
+In this section, we provide the complete mathematical derivation proving that parallel depthwise convolutions and batch normalizations can be analytically converted into a single linear projection matrix with exact mathematical equivalence.
+
+\subsubsection{Step 1: Folding Batch Normalization into Depthwise Convolution}
+Let a depthwise convolution layer have kernel weights $K \in \mathbb{R}^{C \times 1 \times k \times k}$ and bias $b_{\text{conv}} \in \mathbb{R}^C$. Let the subsequent Batch Normalization (BN) layer have running mean $\mu \in \mathbb{R}^C$, running variance $\sigma^2 \in \mathbb{R}^C$, learnable scale $\gamma \in \mathbb{R}^C$, and learnable shift $\beta \in \mathbb{R}^C$.
+
+For an input feature map $X \in \mathbb{R}^{B \times C \times H \times W}$, the convolution operation followed by BN for channel $c$ is:
+\begin{align}
+    Z_c &= K_c * X_c + b_{\text{conv}, c} \\
+    Y_c &= \frac{Z_c - \mu_c}{\sqrt{\sigma_c^2 + \epsilon}} \gamma_c + \beta_c
+\end{align}
+where $*$ denotes 2D spatial convolution and $\epsilon$ is a small numerical stability constant. Expanding $Z_c$ into $Y_c$:
+\begin{align}
+    Y_c &= \left( \frac{K_c * X_c + b_{\text{conv}, c} - \mu_c}{\sqrt{\sigma_c^2 + \epsilon}} \right) \gamma_c + \beta_c \\
+        &= \left( \frac{\gamma_c}{\sqrt{\sigma_c^2 + \epsilon}} K_c \right) * X_c + \left( \beta_c + \frac{\gamma_c (b_{\text{conv}, c} - \mu_c)}{\sqrt{\sigma_c^2 + \epsilon}} \right)
+\end{align}
+Thus, the composite operation is equivalent to a single convolution with folded kernel $\widehat{K}_c$ and folded bias $\widehat{b}_c$:
+\begin{equation}
+    \widehat{K}_c = \frac{\gamma_c}{\sqrt{\sigma_c^2 + \epsilon}} K_c, \qquad \widehat{b}_c = \beta_c + \frac{\gamma_c (b_{\text{conv}, c} - \mu_c)}{\sqrt{\sigma_c^2 + \epsilon}}
+\end{equation}
+
+\subsubsection{Step 2: Linear Spatial Mapping via the Impulse Response}
+A depthwise convolution $\widehat{K}_c$ maps a 2D spatial grid of size $H \times W$ to another grid of size $H \times W$ for each channel $c$. Since convolution with zero-padding is a linear operator, it can be written as a matrix-vector multiplication over the flattened spatial tokens:
+\begin{equation}
+    \text{vec}(Y_c) = W_{\text{conv}}^{(c)} \cdot \text{vec}(X_c) + \widehat{b}_c \mathbf{1}_N
+\end{equation}
+where $\text{vec}(\cdot) \in \mathbb{R}^N$ flattens the $H \times W$ spatial grid into an $N$-dimensional vector ($N = H \times W$), and $W_{\text{conv}}^{(c)} \in \mathbb{R}^{N \times N}$ is the spatial transformation matrix for channel $c$.
+
+To determine the entries of $W_{\text{conv}}^{(c)}$, we test the operator with the canonical basis vectors (the Dirac delta impulse response). Let $e_j \in \mathbb{R}^N$ be the $j$-th standard basis vector where entry $j$ is 1 and all other entries are 0. Unflattening $e_j$ into a 2D grid produces an impulse image $I_j \in \mathbb{R}^{H \times W}$:
+\begin{equation}
+    I_j[y, x] = 
+    \begin{cases}
+        1 & \text{if } y \times W + x = j \\
+        0 & \text{otherwise}
+    \end{cases}
+\end{equation}
+Applying the folded convolution $\widehat{K}_c$ to $I_j$ without bias yields the $j$-th column of $W_{\text{conv}}^{(c)}$:
+\begin{equation}
+    W_{\text{conv}}^{(c)}[:, j] = \text{vec}\Big( \widehat{K}_c * I_j \Big)
+\end{equation}
+By constructing an impulse tensor containing all $N$ basis images $I \in \mathbb{R}^{C \times N \times H \times W}$ and performing a single batched convolution, all columns of $W_{\text{conv}}^{(c)}$ are constructed simultaneously.
+
+\subsubsection{Step 3: Multi-Branch Additive Fusion}
+Because addition distributes over linear mappings:
+\begin{align}
+    Y_c &= W_{\text{fc}} \cdot \text{vec}(X_c) + b_{\text{fc}} + \sum_{k \in \mathcal{K}} \left( W_{\text{conv}, k}^{(c)} \cdot \text{vec}(X_c) + \widehat{b}_k^{(c)} \mathbf{1}_N \right) \\
+        &= \left( W_{\text{fc}} + \sum_{k \in \mathcal{K}} W_{\text{conv}, k}^{(c)} \right) \cdot \text{vec}(X_c) + \left( b_{\text{fc}} + \sum_{k \in \mathcal{K}} \widehat{b}_k^{(c)} \right) \mathbf{1}_N \\
+        &= W_{\text{deploy}}^{(c)} \cdot \text{vec}(X_c) + b_{\text{deploy}}^{(c)}
+\end{align}
+This proves that the multi-branch forward pass is mathematically and identically equal to a single matrix multiplication with weight $W_{\text{deploy}} \in \mathbb{R}^{C \times N \times N}$ and bias $b_{\text{deploy}} \in \mathbb{R}^{C \times N}$.
+
+\subsection{Reproducibility and Execution Environment}
+\label{appendix:reproducibility}
+To ensure reproducibility, all code, configuration files, and profiling scripts are organized in the project repository:
+\begin{itemize}
+    \item \textbf{Random Seed:} All runs were initialized with random seed \texttt{42} across Python, NumPy, and PyTorch.
+    \item \textbf{Hardware Setup:} Kaggle environment with 2 $\times$ NVIDIA Tesla T4 GPUs (16~GB VRAM each), Intel Xeon CPU @ 2.00~GHz, 30~GB System RAM.
+    \item \textbf{Software Environment:} Ubuntu 22.04 LTS, PyTorch 2.1.2, CUDA 12.1, cuDNN 8.9.
+    \item \textbf{Source Code and Configurations:}
+    \begin{itemize}
+        \item Model architectures: \texttt{src/models/pyramid\_res\_mlp.py} and \texttt{res\_mlp\_rep\_token.py}.
+        \item Experiment configs: \texttt{configs/ablation/tiny\_imagenet\_ablation\_*.yaml}.
+        \item Inference profiling: \texttt{scripts/benchmark\_inference.py}.
+    \end{itemize}
+\end{itemize}
