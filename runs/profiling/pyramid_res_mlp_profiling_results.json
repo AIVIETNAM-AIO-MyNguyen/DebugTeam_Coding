@@ -1,0 +1,32 @@
+[
+  {
+    "batch_size": 1,
+    "train_latency_ms": 4.232200002297759,
+    "train_latency_std": 0.1382409156413314,
+    "train_throughput": 236.28372937410256,
+    "train_vram_mb": 0.0,
+    "deploy_latency_ms": 3.3663000212982297,
+    "deploy_latency_std": 0.0709197226020226,
+    "deploy_throughput": 297.0620543840728,
+    "deploy_vram_mb": 0.0,
+    "speedup": 1.2572260272468498,
+    "vram_reduction_pct": 0.0,
+    "max_abs_diff": 2.682209014892578e-07,
+    "is_exact": true
+  },
+  {
+    "batch_size": 4,
+    "train_latency_ms": 5.172100011259317,
+    "train_latency_std": 0.06350978383862786,
+    "train_throughput": 773.3802500516746,
+    "train_vram_mb": 0.0,
+    "deploy_latency_ms": 5.103420000523329,
+    "deploy_latency_std": 0.08229985295204544,
+    "deploy_throughput": 783.7881263132999,
+    "deploy_vram_mb": 0.0,
+    "speedup": 1.0134576442324845,
+    "vram_reduction_pct": 0.0,
+    "max_abs_diff": 3.5762786865234375e-07,
+    "is_exact": true
+  }
+]

@@ -1,0 +1,112 @@
+[2026-10-03 03:28:30] [INFO] Experiment initialized: 20261003_032830_pyramid_res_mlp_tiny_imagenet_tiny_imagenet_pyramid_res_mlp_s42
+[2026-10-03 03:28:30] [INFO] Distributed training: True (world_size=2)
+[2026-10-03 03:28:30] [INFO] Artifacts will be stored at: runs/20261003_032830_pyramid_res_mlp_tiny_imagenet_tiny_imagenet_pyramid_res_mlp_s42
+[2026-10-03 03:28:30] [INFO] Seed set to 42 (deterministic=True)
+[2026-10-03 03:28:30] [INFO] Building data pipeline for dataset: tiny_imagenet
+[2026-10-03 03:28:31] [INFO] Train batches per GPU: 195 | Val batches: 40
+[2026-10-03 03:28:31] [INFO] Building model: pyramid_res_mlp
+[2026-10-03 03:28:31] [INFO] Model pyramid_res_mlp constructed. Parameters: 9,566,312 trainable (9,566,312 total)
+[2026-10-03 03:28:31] [INFO] Starting training on device: cuda:0
+[2026-10-03 03:28:31] [INFO] Total epochs: 100, Initial LR: 0.001
+[2026-10-03 03:30:13] [INFO] Epoch [001/100] Train Loss: 5.5846 | Train Acc: 1.43% | Val Loss: 4.8222 | Val Acc: 4.13% | Best Val: 4.13%
+[2026-10-03 03:31:40] [INFO] Epoch [002/100] Train Loss: 5.0000 | Train Acc: 4.85% | Val Loss: 4.3908 | Val Acc: 9.92% | Best Val: 9.92%
+[2026-10-03 03:33:08] [INFO] Epoch [003/100] Train Loss: 4.8283 | Train Acc: 7.77% | Val Loss: 4.0200 | Val Acc: 15.31% | Best Val: 15.31%
+[2026-10-03 03:34:36] [INFO] Epoch [004/100] Train Loss: 4.6723 | Train Acc: 10.99% | Val Loss: 3.6951 | Val Acc: 21.23% | Best Val: 21.23%
+[2026-10-03 03:36:03] [INFO] Epoch [005/100] Train Loss: 4.5919 | Train Acc: 12.82% | Val Loss: 3.5681 | Val Acc: 23.33% | Best Val: 23.33%
+[2026-10-03 03:37:30] [INFO] Epoch [006/100] Train Loss: 4.5487 | Train Acc: 14.20% | Val Loss: 3.4311 | Val Acc: 24.97% | Best Val: 24.97%
+[2026-10-03 03:38:58] [INFO] Epoch [007/100] Train Loss: 4.4759 | Train Acc: 15.53% | Val Loss: 3.3415 | Val Acc: 27.22% | Best Val: 27.22%
+[2026-10-03 03:40:30] [INFO] Epoch [008/100] Train Loss: 4.4027 | Train Acc: 17.23% | Val Loss: 3.2350 | Val Acc: 29.29% | Best Val: 29.29%
+[2026-10-03 03:41:59] [INFO] Epoch [009/100] Train Loss: 4.3244 | Train Acc: 19.33% | Val Loss: 3.1226 | Val Acc: 31.04% | Best Val: 31.04%
+[2026-10-03 03:43:27] [INFO] Epoch [010/100] Train Loss: 4.3052 | Train Acc: 19.65% | Val Loss: 2.9940 | Val Acc: 33.22% | Best Val: 33.22%
+[2026-10-03 03:44:55] [INFO] Epoch [011/100] Train Loss: 4.2623 | Train Acc: 20.96% | Val Loss: 3.0071 | Val Acc: 33.40% | Best Val: 33.40%
+[2026-10-03 03:46:25] [INFO] Epoch [012/100] Train Loss: 4.2016 | Train Acc: 22.59% | Val Loss: 2.9679 | Val Acc: 34.78% | Best Val: 34.78%
+[2026-10-03 03:47:55] [INFO] Epoch [013/100] Train Loss: 4.1514 | Train Acc: 23.88% | Val Loss: 2.8082 | Val Acc: 36.99% | Best Val: 36.99%
+[2026-10-03 03:49:24] [INFO] Epoch [014/100] Train Loss: 4.0639 | Train Acc: 26.28% | Val Loss: 2.7838 | Val Acc: 38.26% | Best Val: 38.26%
+[2026-10-03 03:50:54] [INFO] Epoch [015/100] Train Loss: 4.1080 | Train Acc: 25.79% | Val Loss: 2.7186 | Val Acc: 39.53% | Best Val: 39.53%
+[2026-10-03 03:52:24] [INFO] Epoch [016/100] Train Loss: 4.0984 | Train Acc: 26.00% | Val Loss: 2.6176 | Val Acc: 41.07% | Best Val: 41.07%
+[2026-10-03 03:53:51] [INFO] Epoch [017/100] Train Loss: 3.9426 | Train Acc: 29.03% | Val Loss: 2.6226 | Val Acc: 42.16% | Best Val: 42.16%
+[2026-10-03 03:55:19] [INFO] Epoch [018/100] Train Loss: 4.0317 | Train Acc: 27.49% | Val Loss: 2.5672 | Val Acc: 41.91% | Best Val: 42.16%
+[2026-10-03 03:56:44] [INFO] Epoch [019/100] Train Loss: 3.9216 | Train Acc: 30.96% | Val Loss: 2.4347 | Val Acc: 44.58% | Best Val: 44.58%
+[2026-10-03 03:58:11] [INFO] Epoch [020/100] Train Loss: 3.9351 | Train Acc: 30.50% | Val Loss: 2.4719 | Val Acc: 45.47% | Best Val: 45.47%
+[2026-10-03 03:59:38] [INFO] Epoch [021/100] Train Loss: 3.8381 | Train Acc: 32.50% | Val Loss: 2.4032 | Val Acc: 45.31% | Best Val: 45.47%
+[2026-10-03 04:01:04] [INFO] Epoch [022/100] Train Loss: 3.7603 | Train Acc: 34.44% | Val Loss: 2.4426 | Val Acc: 45.71% | Best Val: 45.71%
+[2026-10-03 04:02:31] [INFO] Epoch [023/100] Train Loss: 3.8139 | Train Acc: 34.34% | Val Loss: 2.4655 | Val Acc: 45.59% | Best Val: 45.71%
+[2026-10-03 04:03:57] [INFO] Epoch [024/100] Train Loss: 3.8112 | Train Acc: 34.38% | Val Loss: 2.3663 | Val Acc: 47.49% | Best Val: 47.49%
+[2026-10-03 04:05:24] [INFO] Epoch [025/100] Train Loss: 3.8106 | Train Acc: 34.98% | Val Loss: 2.3280 | Val Acc: 48.60% | Best Val: 48.60%
+[2026-10-03 04:06:53] [INFO] Epoch [026/100] Train Loss: 3.5981 | Train Acc: 38.93% | Val Loss: 2.3373 | Val Acc: 48.08% | Best Val: 48.60%
+[2026-10-03 04:08:20] [INFO] Epoch [027/100] Train Loss: 3.7019 | Train Acc: 37.07% | Val Loss: 2.3523 | Val Acc: 48.32% | Best Val: 48.60%
+[2026-10-03 04:09:49] [INFO] Epoch [028/100] Train Loss: 3.6524 | Train Acc: 38.42% | Val Loss: 2.2980 | Val Acc: 49.86% | Best Val: 49.86%
+[2026-10-03 04:11:19] [INFO] Epoch [029/100] Train Loss: 3.6674 | Train Acc: 38.63% | Val Loss: 2.3409 | Val Acc: 48.93% | Best Val: 49.86%
+[2026-10-03 04:12:49] [INFO] Epoch [030/100] Train Loss: 3.6123 | Train Acc: 41.03% | Val Loss: 2.2323 | Val Acc: 50.38% | Best Val: 50.38%
+[2026-10-03 04:14:17] [INFO] Epoch [031/100] Train Loss: 3.5666 | Train Acc: 41.11% | Val Loss: 2.2539 | Val Acc: 50.92% | Best Val: 50.92%
+[2026-10-03 04:15:45] [INFO] Epoch [032/100] Train Loss: 3.4964 | Train Acc: 43.04% | Val Loss: 2.1885 | Val Acc: 51.31% | Best Val: 51.31%
+[2026-10-03 04:17:12] [INFO] Epoch [033/100] Train Loss: 3.5386 | Train Acc: 42.32% | Val Loss: 2.2059 | Val Acc: 51.49% | Best Val: 51.49%
+[2026-10-03 04:18:40] [INFO] Epoch [034/100] Train Loss: 3.4997 | Train Acc: 43.83% | Val Loss: 2.1852 | Val Acc: 52.02% | Best Val: 52.02%
+[2026-10-03 04:20:07] [INFO] Epoch [035/100] Train Loss: 3.4826 | Train Acc: 44.71% | Val Loss: 2.1491 | Val Acc: 52.29% | Best Val: 52.29%
+[2026-10-03 04:21:31] [INFO] Epoch [036/100] Train Loss: 3.5274 | Train Acc: 43.87% | Val Loss: 2.1833 | Val Acc: 52.26% | Best Val: 52.29%
+[2026-10-03 04:22:58] [INFO] Epoch [037/100] Train Loss: 3.4641 | Train Acc: 44.91% | Val Loss: 2.1897 | Val Acc: 52.42% | Best Val: 52.42%
+[2026-10-03 04:24:25] [INFO] Epoch [038/100] Train Loss: 3.4235 | Train Acc: 46.00% | Val Loss: 2.1277 | Val Acc: 53.56% | Best Val: 53.56%
+[2026-10-03 04:25:51] [INFO] Epoch [039/100] Train Loss: 3.4809 | Train Acc: 45.03% | Val Loss: 2.1910 | Val Acc: 52.84% | Best Val: 53.56%
+[2026-10-03 04:27:17] [INFO] Epoch [040/100] Train Loss: 3.3236 | Train Acc: 49.27% | Val Loss: 2.1445 | Val Acc: 53.46% | Best Val: 53.56%
+[2026-10-03 04:28:45] [INFO] Epoch [041/100] Train Loss: 3.3636 | Train Acc: 49.45% | Val Loss: 2.0863 | Val Acc: 54.11% | Best Val: 54.11%
+[2026-10-03 04:30:15] [INFO] Epoch [042/100] Train Loss: 3.3640 | Train Acc: 48.99% | Val Loss: 2.1053 | Val Acc: 54.17% | Best Val: 54.17%
+[2026-10-03 04:31:45] [INFO] Epoch [043/100] Train Loss: 3.3992 | Train Acc: 47.54% | Val Loss: 2.1184 | Val Acc: 53.99% | Best Val: 54.17%
+[2026-10-03 04:33:14] [INFO] Epoch [044/100] Train Loss: 3.2970 | Train Acc: 49.89% | Val Loss: 2.0478 | Val Acc: 54.75% | Best Val: 54.75%
+[2026-10-03 04:34:46] [INFO] Epoch [045/100] Train Loss: 3.3169 | Train Acc: 49.93% | Val Loss: 2.1061 | Val Acc: 54.13% | Best Val: 54.75%
+[2026-10-03 04:36:15] [INFO] Epoch [046/100] Train Loss: 3.1989 | Train Acc: 54.06% | Val Loss: 2.0786 | Val Acc: 55.37% | Best Val: 55.37%
+[2026-10-03 04:37:45] [INFO] Epoch [047/100] Train Loss: 3.2553 | Train Acc: 52.88% | Val Loss: 2.1347 | Val Acc: 54.41% | Best Val: 55.37%
+[2026-10-03 04:39:14] [INFO] Epoch [048/100] Train Loss: 3.1545 | Train Acc: 55.72% | Val Loss: 2.1121 | Val Acc: 54.87% | Best Val: 55.37%
+[2026-10-03 04:40:43] [INFO] Epoch [049/100] Train Loss: 3.2753 | Train Acc: 52.25% | Val Loss: 2.1039 | Val Acc: 54.72% | Best Val: 55.37%
+[2026-10-03 04:42:15] [INFO] Epoch [050/100] Train Loss: 3.1635 | Train Acc: 56.98% | Val Loss: 2.0983 | Val Acc: 54.77% | Best Val: 55.37%
+[2026-10-03 04:43:45] [INFO] Epoch [051/100] Train Loss: 3.0648 | Train Acc: 58.34% | Val Loss: 2.0981 | Val Acc: 55.25% | Best Val: 55.37%
+[2026-10-03 04:45:12] [INFO] Epoch [052/100] Train Loss: 3.1165 | Train Acc: 56.73% | Val Loss: 2.1438 | Val Acc: 54.97% | Best Val: 55.37%
+[2026-10-03 04:46:41] [INFO] Epoch [053/100] Train Loss: 3.1463 | Train Acc: 57.39% | Val Loss: 2.0784 | Val Acc: 55.07% | Best Val: 55.37%
+[2026-10-03 04:48:12] [INFO] Epoch [054/100] Train Loss: 3.0845 | Train Acc: 58.58% | Val Loss: 2.0864 | Val Acc: 55.77% | Best Val: 55.77%
+[2026-10-03 04:49:44] [INFO] Epoch [055/100] Train Loss: 3.1156 | Train Acc: 58.41% | Val Loss: 2.0854 | Val Acc: 55.54% | Best Val: 55.77%
+[2026-10-03 04:51:15] [INFO] Epoch [056/100] Train Loss: 3.2841 | Train Acc: 53.70% | Val Loss: 2.0864 | Val Acc: 55.73% | Best Val: 55.77%
+[2026-10-03 04:52:46] [INFO] Epoch [057/100] Train Loss: 3.1627 | Train Acc: 56.56% | Val Loss: 2.0909 | Val Acc: 55.33% | Best Val: 55.77%
+[2026-10-03 04:54:16] [INFO] Epoch [058/100] Train Loss: 3.0007 | Train Acc: 60.96% | Val Loss: 2.0401 | Val Acc: 55.43% | Best Val: 55.77%
+[2026-10-03 04:55:48] [INFO] Epoch [059/100] Train Loss: 3.1581 | Train Acc: 56.67% | Val Loss: 2.0696 | Val Acc: 55.82% | Best Val: 55.82%
+[2026-10-03 04:57:18] [INFO] Epoch [060/100] Train Loss: 2.9955 | Train Acc: 62.37% | Val Loss: 2.0821 | Val Acc: 55.66% | Best Val: 55.82%
+[2026-10-03 04:58:46] [INFO] Epoch [061/100] Train Loss: 3.0137 | Train Acc: 61.17% | Val Loss: 2.0805 | Val Acc: 55.96% | Best Val: 55.96%
+[2026-10-03 05:00:12] [INFO] Epoch [062/100] Train Loss: 2.9990 | Train Acc: 62.18% | Val Loss: 2.0320 | Val Acc: 56.32% | Best Val: 56.32%
+[2026-10-03 05:01:37] [INFO] Epoch [063/100] Train Loss: 3.0768 | Train Acc: 59.68% | Val Loss: 2.0442 | Val Acc: 56.60% | Best Val: 56.60%
+[2026-10-03 05:03:04] [INFO] Epoch [064/100] Train Loss: 3.0005 | Train Acc: 62.75% | Val Loss: 2.0413 | Val Acc: 56.27% | Best Val: 56.60%
+[2026-10-03 05:04:30] [INFO] Epoch [065/100] Train Loss: 2.9750 | Train Acc: 62.11% | Val Loss: 2.0814 | Val Acc: 56.20% | Best Val: 56.60%
+[2026-10-03 05:05:55] [INFO] Epoch [066/100] Train Loss: 3.0345 | Train Acc: 63.09% | Val Loss: 2.0923 | Val Acc: 56.00% | Best Val: 56.60%
+[2026-10-03 05:07:22] [INFO] Epoch [067/100] Train Loss: 3.0333 | Train Acc: 61.06% | Val Loss: 2.0423 | Val Acc: 56.67% | Best Val: 56.67%
+[2026-10-03 05:08:49] [INFO] Epoch [068/100] Train Loss: 2.9121 | Train Acc: 64.67% | Val Loss: 2.0800 | Val Acc: 56.25% | Best Val: 56.67%
+[2026-10-03 05:10:16] [INFO] Epoch [069/100] Train Loss: 2.8974 | Train Acc: 64.75% | Val Loss: 2.0483 | Val Acc: 56.64% | Best Val: 56.67%
+[2026-10-03 05:11:43] [INFO] Epoch [070/100] Train Loss: 2.9641 | Train Acc: 64.46% | Val Loss: 2.0772 | Val Acc: 56.28% | Best Val: 56.67%
+[2026-10-03 05:13:09] [INFO] Epoch [071/100] Train Loss: 2.9401 | Train Acc: 64.20% | Val Loss: 2.1331 | Val Acc: 55.70% | Best Val: 56.67%
+[2026-10-03 05:14:36] [INFO] Epoch [072/100] Train Loss: 2.8509 | Train Acc: 67.12% | Val Loss: 2.0741 | Val Acc: 56.51% | Best Val: 56.67%
+[2026-10-03 05:16:04] [INFO] Epoch [073/100] Train Loss: 2.9132 | Train Acc: 65.73% | Val Loss: 2.0842 | Val Acc: 56.74% | Best Val: 56.74%
+[2026-10-03 05:17:30] [INFO] Epoch [074/100] Train Loss: 2.8211 | Train Acc: 67.38% | Val Loss: 2.0586 | Val Acc: 57.12% | Best Val: 57.12%
+[2026-10-03 05:18:56] [INFO] Epoch [075/100] Train Loss: 2.8687 | Train Acc: 67.29% | Val Loss: 2.0932 | Val Acc: 56.88% | Best Val: 57.12%
+[2026-10-03 05:20:22] [INFO] Epoch [076/100] Train Loss: 2.8990 | Train Acc: 66.12% | Val Loss: 2.0720 | Val Acc: 57.18% | Best Val: 57.18%
+[2026-10-03 05:21:49] [INFO] Epoch [077/100] Train Loss: 2.9057 | Train Acc: 65.54% | Val Loss: 2.0947 | Val Acc: 56.92% | Best Val: 57.18%
+[2026-10-03 05:23:16] [INFO] Epoch [078/100] Train Loss: 2.7715 | Train Acc: 70.39% | Val Loss: 2.0593 | Val Acc: 57.37% | Best Val: 57.37%
+[2026-10-03 05:24:42] [INFO] Epoch [079/100] Train Loss: 2.8054 | Train Acc: 69.61% | Val Loss: 2.0578 | Val Acc: 57.26% | Best Val: 57.37%
+[2026-10-03 05:26:08] [INFO] Epoch [080/100] Train Loss: 2.9325 | Train Acc: 64.40% | Val Loss: 2.0652 | Val Acc: 57.63% | Best Val: 57.63%
+[2026-10-03 05:27:33] [INFO] Epoch [081/100] Train Loss: 3.0294 | Train Acc: 62.81% | Val Loss: 2.0762 | Val Acc: 57.17% | Best Val: 57.63%
+[2026-10-03 05:28:59] [INFO] Epoch [082/100] Train Loss: 2.8951 | Train Acc: 66.65% | Val Loss: 2.0905 | Val Acc: 57.09% | Best Val: 57.63%
+[2026-10-03 05:30:24] [INFO] Epoch [083/100] Train Loss: 2.9150 | Train Acc: 67.55% | Val Loss: 2.1128 | Val Acc: 57.16% | Best Val: 57.63%
+[2026-10-03 05:31:52] [INFO] Epoch [084/100] Train Loss: 2.8283 | Train Acc: 69.15% | Val Loss: 2.1141 | Val Acc: 57.11% | Best Val: 57.63%
+[2026-10-03 05:33:18] [INFO] Epoch [085/100] Train Loss: 2.9001 | Train Acc: 66.90% | Val Loss: 2.1090 | Val Acc: 57.04% | Best Val: 57.63%
+[2026-10-03 05:34:44] [INFO] Epoch [086/100] Train Loss: 2.9336 | Train Acc: 64.97% | Val Loss: 2.1008 | Val Acc: 57.43% | Best Val: 57.63%
+[2026-10-03 05:36:10] [INFO] Epoch [087/100] Train Loss: 2.9730 | Train Acc: 65.39% | Val Loss: 2.1013 | Val Acc: 57.26% | Best Val: 57.63%
+[2026-10-03 05:37:37] [INFO] Epoch [088/100] Train Loss: 2.8826 | Train Acc: 66.31% | Val Loss: 2.0554 | Val Acc: 57.56% | Best Val: 57.63%
+[2026-10-03 05:39:05] [INFO] Epoch [089/100] Train Loss: 2.8495 | Train Acc: 67.42% | Val Loss: 2.0662 | Val Acc: 57.48% | Best Val: 57.63%
+[2026-10-03 05:40:33] [INFO] Epoch [090/100] Train Loss: 2.8507 | Train Acc: 66.64% | Val Loss: 2.0603 | Val Acc: 57.63% | Best Val: 57.63%
+[2026-10-03 05:41:58] [INFO] Epoch [091/100] Train Loss: 2.8485 | Train Acc: 68.39% | Val Loss: 2.0747 | Val Acc: 57.59% | Best Val: 57.63%
+[2026-10-03 05:43:23] [INFO] Epoch [092/100] Train Loss: 2.7943 | Train Acc: 68.68% | Val Loss: 2.0592 | Val Acc: 57.59% | Best Val: 57.63%
+[2026-10-03 05:44:48] [INFO] Epoch [093/100] Train Loss: 2.8825 | Train Acc: 65.78% | Val Loss: 2.0685 | Val Acc: 57.68% | Best Val: 57.68%
+[2026-10-03 05:46:14] [INFO] Epoch [094/100] Train Loss: 2.8592 | Train Acc: 67.53% | Val Loss: 2.0791 | Val Acc: 57.68% | Best Val: 57.68%
+[2026-10-03 05:47:40] [INFO] Epoch [095/100] Train Loss: 2.8005 | Train Acc: 69.42% | Val Loss: 2.0678 | Val Acc: 57.81% | Best Val: 57.81%
+[2026-10-03 05:49:04] [INFO] Epoch [096/100] Train Loss: 2.7767 | Train Acc: 69.58% | Val Loss: 2.0878 | Val Acc: 57.69% | Best Val: 57.81%
+[2026-10-03 05:50:30] [INFO] Epoch [097/100] Train Loss: 2.8480 | Train Acc: 68.46% | Val Loss: 2.0962 | Val Acc: 57.47% | Best Val: 57.81%
+[2026-10-03 05:52:00] [INFO] Epoch [098/100] Train Loss: 2.8834 | Train Acc: 66.80% | Val Loss: 2.0700 | Val Acc: 57.85% | Best Val: 57.85%
+[2026-10-03 05:53:30] [INFO] Epoch [099/100] Train Loss: 2.8696 | Train Acc: 67.74% | Val Loss: 2.0654 | Val Acc: 57.80% | Best Val: 57.85%
+[2026-10-03 05:54:59] [INFO] Epoch [100/100] Train Loss: 2.8033 | Train Acc: 69.08% | Val Loss: 2.0546 | Val Acc: 57.83% | Best Val: 57.85%
+[2026-10-03 05:55:00] [INFO] Training completed in 146.47 minutes. Best Val Acc@1: 57.85%
+[2026-10-03 05:55:00] [INFO] Experiment finished successfully! Best Acc@1: 57.85%
